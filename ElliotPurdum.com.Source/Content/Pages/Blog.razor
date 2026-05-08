@@ -1,0 +1,40 @@
+@page "/blog"
+
+<PageTitle>Blog — Elliot Purdum</PageTitle>
+
+<section class="blog-index">
+    <div class="wrapper">
+        <header class="page-heading">
+            <h1 class="page-title">Blog</h1>
+            <p class="page-subtitle">Notes on the music I'm working on.</p>
+        </header>
+
+        @if (NavLinks.Count == 0)
+        {
+            <p class="empty-note">Posts coming soon.</p>
+        }
+        else
+        {
+            <ul class="post-list">
+                @foreach (LinkData link in NavLinks.OrderByDescending(p => p.PublishedDate))
+                {
+                    <li class="post-list__item">
+                        <time class="post-list__date" datetime="@link.PublishedDate.ToString("yyyy-MM-dd")">@link.PublishedDate.ToString("MMMM d, yyyy")</time>
+                        <h2 class="post-list__title"><a href="@(link.Url).html">@link.Title</a></h2>
+                        @if (!string.IsNullOrWhiteSpace(link.SubTitle))
+                        {
+                            <p class="post-list__subtitle">@link.SubTitle</p>
+                        }
+                    </li>
+                }
+            </ul>
+
+            <p class="rss-subscribe">subscribe via <a href="/feed.xml">RSS</a></p>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public required List<LinkData> NavLinks { get; set; }
+    [Parameter] public string SiteTitle { get; set; } = string.Empty;
+}

@@ -1,0 +1,51 @@
+@page "/music"
+
+<PageTitle>Music — Elliot Purdum</PageTitle>
+
+<section class="music-index">
+    <div class="wrapper">
+        <header class="page-heading">
+            <h1 class="page-title">Music</h1>
+            <p class="page-subtitle">Performances, recordings, and compositions.</p>
+        </header>
+
+        @if (MusicEntries is null || MusicEntries.Count == 0)
+        {
+            <p class="empty-note">Recordings coming soon.</p>
+        }
+        else
+        {
+            <ul class="music-list music-list--full">
+                @foreach (MusicMetaData music in MusicEntries.OrderByDescending(m => m.Date))
+                {
+                    <li class="music-list__item">
+                        <a class="music-card" href="@(music.Url).html">
+                            @if (music.ExtraParameters.GetValueOrDefault("CoverImage") is string cover && !string.IsNullOrWhiteSpace(cover))
+                            {
+                                <img class="music-card__cover" src="@cover" alt="" loading="lazy" />
+                            }
+                            <div class="music-card__body">
+                                <h2 class="music-card__title">@music.Title</h2>
+                                @if (music.ExtraParameters.GetValueOrDefault("Ensemble") is string ensemble && !string.IsNullOrWhiteSpace(ensemble))
+                                {
+                                    <p class="music-card__ensemble">@ensemble</p>
+                                }
+                                @if (music.ExtraParameters.GetValueOrDefault("Venue") is string venue && !string.IsNullOrWhiteSpace(venue))
+                                {
+                                    <p class="music-card__venue">@venue</p>
+                                }
+                                <p class="music-card__date">@music.Date.ToString("MMMM d, yyyy")</p>
+                            </div>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public required List<LinkData> NavLinks { get; set; }
+    [Parameter] public string SiteTitle { get; set; } = string.Empty;
+    [Parameter] public List<MusicMetaData>? MusicEntries { get; set; }
+}

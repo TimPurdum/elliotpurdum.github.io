@@ -1,0 +1,44 @@
+@page "/gallery"
+
+<PageTitle>Gallery — Elliot Purdum</PageTitle>
+
+<section class="gallery-index">
+    <div class="wrapper">
+        <header class="page-heading">
+            <h1 class="page-title">Gallery</h1>
+            <p class="page-subtitle">Collections of performance and event photos.</p>
+        </header>
+
+        @if (GalleryEntries is null || GalleryEntries.Count == 0)
+        {
+            <p class="empty-note">Photo collections coming soon.</p>
+        }
+        else
+        {
+            <ul class="gallery-collections">
+                @foreach (GalleryMetaData gallery in GalleryEntries.OrderByDescending(g => g.Date))
+                {
+                    <li class="gallery-collections__item">
+                        <a class="gallery-collection-card" href="@(gallery.Url).html">
+                            @if (gallery.Images.Count > 0 && !string.IsNullOrWhiteSpace(gallery.Images[0].Src))
+                            {
+                                <img class="gallery-collection-card__cover" src="@gallery.Images[0].Src" alt="" loading="lazy" />
+                            }
+                            <div class="gallery-collection-card__body">
+                                <h2 class="gallery-collection-card__title">@gallery.Title</h2>
+                                <p class="gallery-collection-card__date">@gallery.Date.ToString("MMMM yyyy")</p>
+                                <p class="gallery-collection-card__count">@gallery.Images.Count photos</p>
+                            </div>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public required List<LinkData> NavLinks { get; set; }
+    [Parameter] public string SiteTitle { get; set; } = string.Empty;
+    [Parameter] public List<GalleryMetaData>? GalleryEntries { get; set; }
+}

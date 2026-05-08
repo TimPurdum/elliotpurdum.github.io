@@ -1,0 +1,16 @@
+# BlogGenerator's parser splits on Environment.NewLine. Force CRLF on Windows checkouts
+# and LF on Linux/macOS so the parser sees consistent endings on each platform.
+* text=auto
+
+# Razor / markdown / config files: text — let git normalize.
+*.razor    text
+*.md       text
+*.cs       text
+*.csproj   text
+*.slnx     text
+*.json     text
+*.yml      text
+*.yaml     text
+*.html     text
+*.css      text
+*.js       text

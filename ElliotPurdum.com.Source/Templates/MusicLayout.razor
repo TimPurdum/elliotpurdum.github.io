@@ -1,0 +1,53 @@
+@inherits BaseMusicLayout
+
+<Header NavLinks="NavLinks"></Header>
+<main class="page-content" aria-label="content">
+    <div class="wrapper">
+        <article class="music-entry">
+            <header class="music-header">
+                <h1 class="music-title">@Title</h1>
+                @if (SubTitle is not null)
+                {
+                    <h2 class="music-subtitle">@SubTitle</h2>
+                }
+                <dl class="music-meta">
+                    @if (Date is not null)
+                    {
+                        <dt>Date</dt>
+                        <dd><time datetime="@Date.Value.ToString("yyyy-MM-dd")">@Date.Value.ToString("MMMM d, yyyy")</time></dd>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Ensemble))
+                    {
+                        <dt>Ensemble</dt>
+                        <dd>@Ensemble</dd>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Role))
+                    {
+                        <dt>Role</dt>
+                        <dd>@Role</dd>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Venue))
+                    {
+                        <dt>Venue</dt>
+                        <dd>@Venue</dd>
+                    }
+                </dl>
+            </header>
+            @if (!string.IsNullOrWhiteSpace(CoverImage))
+            {
+                @* Title is MarkupString — using .Value so Razor HTML-encodes the attribute. *@
+                <img class="music-cover" src="@CoverImage" alt="@Title.Value" />
+            }
+            @if (!string.IsNullOrWhiteSpace(EmbedUrl))
+            {
+                <div class="music-embed">
+                    <iframe src="@EmbedUrl" allowfullscreen title="@Title.Value"></iframe>
+                </div>
+            }
+            <div class="music-body">
+                @Content
+            </div>
+        </article>
+    </div>
+</main>
+<Footer></Footer>

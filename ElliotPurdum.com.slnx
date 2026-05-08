@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/BlogGenerator/">
+    <Project Path="BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler/TimPurdum.Dev.BlogGenerator.Compiler.csproj" />
+    <Project Path="BlogGenerator/TimPurdum.Dev.BlogGenerator.Shared/TimPurdum.Dev.BlogGenerator.Shared.csproj" />
+    <Project Path="BlogGenerator/TimPurdum.Dev.BlogGenerator/TimPurdum.Dev.BlogGenerator.csproj" />
+  </Folder>
+  <Folder Name="/BlogGenerator/markdig/" />
+  <Folder Name="/BlogGenerator/markdig/src/">
+    <Project Path="BlogGenerator/markdig/src/Markdig/Markdig.csproj" />
+  </Folder>
+  <Project Path="ElliotPurdum.com.Source/ElliotPurdum.com.Source.csproj" />
+  <Project Path="ElliotPurdum.com/ElliotPurdum.com.csproj" />
+</Solution>

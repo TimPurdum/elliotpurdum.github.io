@@ -1,0 +1,38 @@
+@inherits BaseRootTemplate
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Title</title>
+    <meta name="generator" content="BlogGenerator" />
+    <meta property="og:title" content="@Title" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="description" content="@Description" />
+    <meta property="og:description" content="@Description" />
+    <link rel="canonical" href="@Url" />
+    <meta property="og:url" content="@Url" />
+    <meta property="og:site_name" content="@SiteName" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/favicon.ico" />
+    <base href="/" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link href="@($"{SiteName}.styles.css")" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@@400;500;600;700&family=Source+Sans+3:wght@@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="alternate" type="application/rss+xml" title="@SiteName" href="/feed.xml" />
+    @HeaderLinks
+</head>
+
+<body>
+    <DynamicComponent Type="LayoutType" Parameters="Parameters" />
+    <script src="_framework/blazor.webassembly.js"></script>
+    @foreach (MarkupString script in Scripts ?? [])
+    {
+        @script
+    }
+</body>
+
+</html>

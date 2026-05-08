@@ -1,0 +1,34 @@
+@page "/about"
+
+<PageTitle>About — Elliot Purdum</PageTitle>
+
+<section class="about-page">
+    <div class="wrapper">
+        <header class="page-heading">
+            <h1 class="page-title">About</h1>
+        </header>
+
+        <div class="about-body">
+            <p class="lede">
+                Elliot Purdum is a cellist and conductor based in Berea, Ohio.
+            </p>
+
+            <p>
+                He is currently a student at <a href="https://www.bw.edu/" target="_blank" rel="noopener">Baldwin Wallace University</a>,
+                where he studies cello performance.
+            </p>
+
+            <p>
+                Elliot has continued his cello studies at the
+                <a href="https://www.sewaneemusicfestival.org/" target="_blank" rel="noopener">Sewanee Summer Music Festival</a>,
+                and has studied conducting with several mentors, including
+                Markand Thakar, Erik Rohde, and Douglas Droste.
+            </p>
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public required List<LinkData> NavLinks { get; set; }
+    [Parameter] public string SiteTitle { get; set; } = string.Empty;
+}

@@ -1,0 +1,3 @@
+[submodule "BlogGenerator"]
+	path = BlogGenerator
+	url = https://github.com/TimPurdum/BlogGenerator.git

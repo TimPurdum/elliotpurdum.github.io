@@ -1,0 +1,92 @@
+@page "/shows"
+
+<PageTitle>Shows — Elliot Purdum</PageTitle>
+
+<section class="shows-index">
+    <div class="wrapper">
+        <header class="page-heading">
+            <h1 class="page-title">Shows</h1>
+            <p class="page-subtitle">Upcoming performances and a record of recent ones.</p>
+        </header>
+
+        @{
+            DateTime today = DateTime.Today;
+            var upcoming = (ShowEntries ?? []).Where(s => s.PerformanceDate >= today).OrderBy(s => s.PerformanceDate).ToList();
+            var past = (ShowEntries ?? []).Where(s => s.PerformanceDate < today).OrderByDescending(s => s.PerformanceDate).ToList();
+        }
+
+        <section class="shows-section shows-section--upcoming">
+            <h2 class="shows-section__title">Upcoming</h2>
+            @if (upcoming.Count == 0)
+            {
+                <p class="empty-note">No shows announced just now.</p>
+            }
+            else
+            {
+                <ul class="show-list show-list--upcoming">
+                    @foreach (ShowMetaData show in upcoming)
+                    {
+                        <li class="show-list__item">
+                            <time class="show-list__date" datetime="@show.PerformanceDate.ToString("yyyy-MM-dd")">
+                                <span class="show-list__month">@show.PerformanceDate.ToString("MMM")</span>
+                                <span class="show-list__day">@show.PerformanceDate.Day</span>
+                                <span class="show-list__year">@show.PerformanceDate.Year</span>
+                            </time>
+                            <div class="show-list__body">
+                                <h3 class="show-list__title"><a href="@(show.Url).html">@show.Title</a></h3>
+                                @if (show.ExtraParameters.GetValueOrDefault("Time") is string time && !string.IsNullOrWhiteSpace(time))
+                                {
+                                    <p class="show-list__time">@time</p>
+                                }
+                                @if (show.ExtraParameters.GetValueOrDefault("Venue") is string venue && !string.IsNullOrWhiteSpace(venue))
+                                {
+                                    <p class="show-list__venue">@venue@(show.ExtraParameters.GetValueOrDefault("City") is string city && !string.IsNullOrWhiteSpace(city) ? $", {city}" : "")</p>
+                                }
+                                @if (show.ExtraParameters.GetValueOrDefault("Program") is string program && !string.IsNullOrWhiteSpace(program))
+                                {
+                                    <p class="show-list__program">@program</p>
+                                }
+                                @if (show.ExtraParameters.GetValueOrDefault("TicketUrl") is string ticket && !string.IsNullOrWhiteSpace(ticket))
+                                {
+                                    <p class="show-list__tickets">
+                                        <a class="button button--small" href="@ticket" target="_blank" rel="noopener">Tickets</a>
+                                    </p>
+                                }
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="shows-section shows-section--past">
+            <h2 class="shows-section__title">Past</h2>
+            @if (past.Count == 0)
+            {
+                <p class="empty-note">A record of past shows will appear here.</p>
+            }
+            else
+            {
+                <ul class="show-list show-list--past">
+                    @foreach (ShowMetaData show in past)
+                    {
+                        <li class="show-list__item show-list__item--compact">
+                            <time class="show-list__compact-date" datetime="@show.PerformanceDate.ToString("yyyy-MM-dd")">@show.PerformanceDate.ToString("MMM d, yyyy")</time>
+                            <h3 class="show-list__title"><a href="@(show.Url).html">@show.Title</a></h3>
+                            @if (show.ExtraParameters.GetValueOrDefault("Venue") is string venue && !string.IsNullOrWhiteSpace(venue))
+                            {
+                                <span class="show-list__venue">@venue</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</section>
+
+@code {
+    [Parameter] public required List<LinkData> NavLinks { get; set; }
+    [Parameter] public string SiteTitle { get; set; } = string.Empty;
+    [Parameter] public List<ShowMetaData>? ShowEntries { get; set; }
+}

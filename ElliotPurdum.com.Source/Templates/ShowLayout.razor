@@ -1,0 +1,53 @@
+@inherits BaseShowLayout
+
+<Header NavLinks="NavLinks"></Header>
+<main class="page-content" aria-label="content">
+    <div class="wrapper">
+        <article class="show-entry">
+            <header class="show-header">
+                <h1 class="show-title">@Title</h1>
+                @if (SubTitle is not null)
+                {
+                    <h2 class="show-subtitle">@SubTitle</h2>
+                }
+                @if (PerformanceDate is not null)
+                {
+                    <p class="show-date">
+                        <time datetime="@PerformanceDate.Value.ToString("yyyy-MM-dd")">@PerformanceDate.Value.ToString("dddd, MMMM d, yyyy")</time>
+                        @if (!string.IsNullOrWhiteSpace(Time))
+                        {
+                            <span class="show-time"> &mdash; @Time</span>
+                        }
+                    </p>
+                }
+                <dl class="show-meta">
+                    @if (!string.IsNullOrWhiteSpace(Venue))
+                    {
+                        <dt>Venue</dt>
+                        <dd>@Venue@(string.IsNullOrWhiteSpace(City) ? "" : $", {City}")</dd>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Program))
+                    {
+                        <dt>Program</dt>
+                        <dd>@Program</dd>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Role))
+                    {
+                        <dt>Role</dt>
+                        <dd>@Role</dd>
+                    }
+                </dl>
+                @if (!string.IsNullOrWhiteSpace(TicketUrl))
+                {
+                    <p class="show-tickets">
+                        <a class="button" href="@TicketUrl" target="_blank" rel="noopener">Tickets</a>
+                    </p>
+                }
+            </header>
+            <div class="show-body">
+                @Content
+            </div>
+        </article>
+    </div>
+</main>
+<Footer></Footer>
