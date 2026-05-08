@@ -68,13 +68,11 @@ BlogGenerator's parser splits files on `Environment.NewLine`, which is platform-
 
 The `.gitattributes` file (if present) and your local `git config core.autocrlf` settings should be aligned with this.
 
-## Configuration & secrets
+## Configuration
 
-- `ElliotPurdum.com/wwwroot/appsettings.json` is **gitignored**. Use `appsettings.example.json` as the template.
-- CI injects the production version from the `APP_SETTINGS` GitHub secret in `.github/workflows/static.yml`.
-- For local dev, copy `appsettings.example.json` → `appsettings.json` and tweak as needed.
-
-The `BlogSettings` paths in `appsettings.json` are resolved relative to the Source project folder by the Compiler's `Program.cs` before generation runs. Don't hardcode absolute paths.
+- `ElliotPurdum.com/wwwroot/appsettings.json` is **checked in**. The site has no third-party secrets (no API keys, no GeoBlazor license) — the file holds only public `BlogSettings` (site name, URL, content paths). Edit it directly when you need to tweak settings.
+- The `BlogSettings` paths are resolved relative to the Source project folder by the Compiler's `Program.cs` before generation runs. Don't hardcode absolute paths.
+- If a future feature ever needs a secret, switch back to a gitignored `appsettings.json` + a CI secret-injection step (the old workflow pattern is preserved in git history).
 
 ## NuGet feeds
 
