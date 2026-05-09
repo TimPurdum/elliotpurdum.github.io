@@ -53,6 +53,16 @@ jobs:
           cd ElliotPurdum.com
           dotnet publish -c Release
 
+      - name: Publish admin portal
+        run: |
+          cd ElliotPurdum.com.Admin
+          dotnet publish -c Release -o ../admin-publish
+
+      - name: Stage admin under /admin
+        run: |
+          mkdir -p ${{ env.PUBLISH_DIR }}/admin
+          cp -r admin-publish/wwwroot/. ${{ env.PUBLISH_DIR }}/admin/
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

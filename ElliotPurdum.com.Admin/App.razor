@@ -1,0 +1,38 @@
+@inject AuthService Auth
+@inject GitHubApiService Api
+@implements IDisposable
+
+@if (!_initialized)
+{
+    <div class="splash">
+        <p>Loading…</p>
+    </div>
+}
+else
+{
+    <Router AppAssembly="@typeof(Program).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <h1>Not found</h1>
+                <p>That admin page doesn't exist.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+}
+
+@code {
+    private bool _initialized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.OnChanged += StateHasChanged;
+        await Auth.InitializeAsync(Api);
+        _initialized = true;
+    }
+
+    public void Dispose() => Auth.OnChanged -= StateHasChanged;
+}
