@@ -8,3 +8,8 @@ riderModule.iml
 ElliotPurdum.com.sln.DotSettings.user
 *.nupkg
 node_modules/
+
+# Video files — host on YouTube/Vimeo and embed via embedUrl. Don't store in git.
+*.mp4
+*.mov
+*.webm

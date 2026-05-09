@@ -334,6 +334,23 @@ a:hover {
     margin: 0 auto;
     animation-delay: 360ms;
 }
+.hero__figure {
+    margin: 3.5rem auto 0;
+    max-width: 32rem;
+    padding: 0.5rem;
+    border-top: 1px solid var(--color-accent);
+    border-bottom: 1px solid var(--color-accent);
+    animation-delay: 500ms;
+}
+.hero__figure img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    filter: saturate(0.92) contrast(1.02);
+}
+@media (min-width: 720px) {
+    .hero__figure { max-width: 24rem; }
+}
 
 /* --- homepage sections ------------------------------------ */
 
@@ -1053,6 +1070,20 @@ a:hover {
 
 .about-page { padding: 4.5rem 0 7rem; }
 @media (min-width: 720px) { .about-page { padding: 6rem 0 8rem; } }
+
+.about-portrait {
+    margin: 0 auto 3rem;
+    max-width: 18rem;
+    padding: 0.5rem;
+    border-top: 1px solid var(--color-accent);
+    border-bottom: 1px solid var(--color-accent);
+}
+.about-portrait img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    filter: saturate(0.92);
+}
 
 .about-body {
     max-width: var(--content-narrow);
