@@ -1,0 +1,33 @@
+@page "/{TypeSlug}/new"
+@page "/{TypeSlug}/edit/{File}"
+
+<PageTitle>@(string.IsNullOrEmpty(File) ? "New" : "Edit") @TypeSlug — admin</PageTitle>
+
+<header class="page-heading">
+    <h1>@(string.IsNullOrEmpty(File) ? "New" : "Edit") @TypeSlug</h1>
+    <p class="page-heading__lede">Editor lands in the next admin slice (P3.3).</p>
+</header>
+
+<div class="alert">
+    <p>
+        @if (string.IsNullOrEmpty(File))
+        {
+            <span>You'd be creating a new <strong>@TypeSlug</strong> entry here.</span>
+        }
+        else
+        {
+            <span>You'd be editing <code>@File</code> here.</span>
+        }
+        For now, content edits still happen by hand in markdown files under
+        <code>ElliotPurdum.com.Source/Content/@(ToTitle(TypeSlug))/</code>.
+    </p>
+    <a class="admin-button admin-button--ghost" href="/admin/@TypeSlug">&larr; Back to @TypeSlug</a>
+</div>
+
+@code {
+    [Parameter] public string? TypeSlug { get; set; }
+    [Parameter] public string? File { get; set; }
+
+    private static string ToTitle(string? slug)
+        => string.IsNullOrEmpty(slug) ? "" : char.ToUpperInvariant(slug[0]) + slug[1..];
+}
