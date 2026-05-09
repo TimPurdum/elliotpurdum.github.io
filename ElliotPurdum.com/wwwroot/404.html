@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Not found — Elliot Purdum</title>
+    <script>
+        // GitHub Pages serves this file for ANY missing path on the site, not just public ones.
+        // For /admin/* deep links the admin Blazor app needs to boot and route to the page.
+        // We stash the requested path in sessionStorage and bounce to /admin/, where index.html
+        // restores the URL via history.replaceState before Blazor's router runs.
+        (function () {
+            var path = window.location.pathname || "/";
+            if (path.indexOf("/admin/") === 0 || path === "/admin") {
+                try { sessionStorage.setItem("admin.spa.redirect", path + window.location.search + window.location.hash); }
+                catch (e) { /* private mode: fall through to /admin/ which still loads the dashboard */ }
+                window.location.replace("/admin/");
+                return;
+            }
+            // Mark the page as the public 404 so the body content renders.
+            document.documentElement.setAttribute("data-public-404", "");
+        })();
+    </script>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Hide the body until the script above decides whether to redirect or render. */
+        html:not([data-public-404]) body { display: none; }
+        .nf {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4rem 1.5rem;
+            font-family: 'Source Sans 3', system-ui, sans-serif;
+            background: #FAFAF5;
+            color: #1A1A1A;
+        }
+        .nf__eyebrow {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.32em;
+            color: #C9A84C;
+            margin-bottom: 1.75rem;
+        }
+        .nf__eyebrow::before, .nf__eyebrow::after {
+            content: '';
+            display: inline-block;
+            width: 24px; height: 1px;
+            background: #C9A84C;
+            vertical-align: middle;
+            margin: 0 0.85em 0.15em;
+        }
+        .nf__title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 500;
+            line-height: 1;
+            letter-spacing: -0.012em;
+            margin-bottom: 1.25rem;
+        }
+        .nf__lede {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-style: italic;
+            font-size: clamp(1.125rem, 2vw, 1.4rem);
+            color: rgba(26, 26, 26, 0.58);
+            max-width: 32rem;
+            line-height: 1.5;
+            margin-bottom: 2.25rem;
+        }
+        .nf__home {
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            padding: 0.95rem 2.25rem;
+            background: transparent;
+            color: #1A1A1A;
+            text-decoration: none;
+            border: 1px solid #C9A84C;
+            transition: background 250ms ease, color 250ms ease;
+        }
+        .nf__home:hover { background: #C9A84C; color: #FAFAF5; }
+        @media (prefers-color-scheme: dark) {
+            .nf { background: #0A0A0A; color: #F5F0E8; }
+            .nf__lede { color: rgba(245, 240, 232, 0.58); }
+            .nf__home { color: #F5F0E8; }
+        }
+    </style>
+</head>
+<body>
+    <main class="nf">
+        <p class="nf__eyebrow">404</p>
+        <h1 class="nf__title">Not found</h1>
+        <p class="nf__lede">That page isn't here. It may have moved or never existed.</p>
+        <a class="nf__home" href="/">Return home</a>
+    </main>
+</body>
+</html>

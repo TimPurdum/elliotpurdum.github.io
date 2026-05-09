@@ -6,6 +6,22 @@
     <meta name="robots" content="noindex,nofollow" />
     <title>Admin — Elliot Purdum</title>
     <base href="/admin/" />
+    <script>
+        // SPA-fallback restore. The site-level /404.html stashes the originally requested
+        // /admin/* path in sessionStorage and bounces the browser here. Restore the URL via
+        // history.replaceState BEFORE Blazor boots so its router lands on the right page.
+        (function () {
+            try {
+                var saved = sessionStorage.getItem("admin.spa.redirect");
+                if (saved) {
+                    sessionStorage.removeItem("admin.spa.redirect");
+                    if (saved.indexOf("/admin/") === 0 || saved === "/admin") {
+                        history.replaceState(null, "", saved);
+                    }
+                }
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
     <link rel="stylesheet" href="css/admin.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
