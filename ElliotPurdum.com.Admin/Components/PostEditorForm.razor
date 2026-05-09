@@ -1,0 +1,17 @@
+@* Post frontmatter form. The fields here mirror PostFrontMatter exactly. *@
+
+<div class="form-grid">
+    <FormRow Label="Title" Required="true" For="post-title">
+        <input id="post-title" class="form-input" type="text" required @bind="Frontmatter.Title" />
+    </FormRow>
+    <FormRow Label="Subtitle" Hint="Optional, shown under the title." For="post-subtitle">
+        <input id="post-subtitle" class="form-input" type="text" @bind="Frontmatter.Subtitle" />
+    </FormRow>
+    <FormRow Label="Description" Hint="Optional, used in OG meta and feed." For="post-description">
+        <textarea id="post-description" class="form-input" rows="3" @bind="Frontmatter.Description"></textarea>
+    </FormRow>
+</div>
+
+@code {
+    [Parameter] public required PostFrontMatter Frontmatter { get; set; }
+}

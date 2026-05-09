@@ -34,6 +34,18 @@
         </div>
     </div>
     <noscript>This admin tool needs JavaScript enabled.</noscript>
+    <!-- Markdown preview rendering. Loaded sync so window.marked is ready by the time the editor uses it. -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@14.1.5/marked.min.js"></script>
+    <script>
+        // Tiny wrapper so the editor can call this via IJSRuntime without depending on marked's ABI.
+        window.adminRenderMarkdown = function (text) {
+            try {
+                return (typeof marked === "undefined") ? "" : marked.parse(text || "");
+            } catch (e) {
+                return "<p><em>Preview error: " + (e && e.message ? e.message : "unknown") + "</em></p>";
+            }
+        };
+    </script>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 </html>

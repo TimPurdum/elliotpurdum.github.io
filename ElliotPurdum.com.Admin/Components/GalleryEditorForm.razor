@@ -1,0 +1,71 @@
+@* Gallery entry form. Includes a list editor for the images array. *@
+
+<div class="form-grid">
+    <FormRow Label="Title" Required="true" For="gallery-title">
+        <input id="gallery-title" class="form-input" type="text" required @bind="Frontmatter.Title" />
+    </FormRow>
+    <FormRow Label="Description" For="gallery-description" Hint="Optional, shown under the title.">
+        <textarea id="gallery-description" class="form-input" rows="3" @bind="Frontmatter.Description"></textarea>
+    </FormRow>
+</div>
+
+<section class="image-list">
+    <header class="image-list__header">
+        <h2 class="image-list__title">Images</h2>
+        <button type="button" class="admin-button admin-button--small" @onclick="AddImage">+ Add image</button>
+    </header>
+    @if (Frontmatter.Images.Count == 0)
+    {
+        <p class="empty">No images yet. Click "Add image" to get started.</p>
+    }
+    else
+    {
+        <ol class="image-list__items">
+            @for (int i = 0; i < Frontmatter.Images.Count; i++)
+            {
+                int index = i; // capture for lambda
+                GalleryImageEntry image = Frontmatter.Images[i];
+                <li class="image-list__item">
+                    <span class="image-list__index">@(index + 1)</span>
+                    <div class="image-list__fields">
+                        <FormRow Label="Image src" For="@($"img-src-{index}")" Hint="Path under /images/, e.g. /images/gallery/foo.jpg">
+                            <input id="@($"img-src-{index}")" class="form-input" type="text" @bind="image.Src" />
+                        </FormRow>
+                        <FormRow Label="Caption" For="@($"img-caption-{index}")">
+                            <input id="@($"img-caption-{index}")" class="form-input" type="text" @bind="image.Caption" />
+                        </FormRow>
+                    </div>
+                    <div class="image-list__actions">
+                        <button type="button" class="admin-button admin-button--small admin-button--ghost"
+                                @onclick="() => Move(index, -1)" disabled="@(index == 0)" title="Move up">↑</button>
+                        <button type="button" class="admin-button admin-button--small admin-button--ghost"
+                                @onclick="() => Move(index, 1)" disabled="@(index == Frontmatter.Images.Count - 1)" title="Move down">↓</button>
+                        <button type="button" class="admin-button admin-button--small admin-button--danger"
+                                @onclick="() => Remove(index)" title="Remove">✕</button>
+                    </div>
+                </li>
+            }
+        </ol>
+    }
+</section>
+
+@code {
+    [Parameter] public required GalleryFrontMatter Frontmatter { get; set; }
+
+    private void AddImage()
+    {
+        Frontmatter.Images.Add(new GalleryImageEntry());
+    }
+
+    private void Remove(int index)
+    {
+        Frontmatter.Images.RemoveAt(index);
+    }
+
+    private void Move(int index, int delta)
+    {
+        int target = index + delta;
+        if (target < 0 || target >= Frontmatter.Images.Count) return;
+        (Frontmatter.Images[index], Frontmatter.Images[target]) = (Frontmatter.Images[target], Frontmatter.Images[index]);
+    }
+}

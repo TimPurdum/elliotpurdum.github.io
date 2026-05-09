@@ -1,0 +1,38 @@
+@* Show / event entry form. The performance date lives in the filename, not the frontmatter. *@
+
+<div class="form-grid">
+    <FormRow Label="Title" Required="true" For="show-title">
+        <input id="show-title" class="form-input" type="text" required @bind="Frontmatter.Title" />
+    </FormRow>
+    <FormRow Label="Time" Hint="Free-form (e.g. &quot;7:30 PM&quot;)." For="show-time">
+        <input id="show-time" class="form-input" type="text" @bind="Frontmatter.Time" placeholder="7:30 PM" />
+    </FormRow>
+    <FormRow Label="Venue" For="show-venue">
+        <input id="show-venue" class="form-input" type="text" @bind="Frontmatter.Venue" />
+    </FormRow>
+    <FormRow Label="City" For="show-city">
+        <input id="show-city" class="form-input" type="text" @bind="Frontmatter.City" placeholder="Cedar Falls, IA" />
+    </FormRow>
+    <FormRow Label="Ticket URL" For="show-tickets">
+        <input id="show-tickets" class="form-input" type="url" @bind="Frontmatter.TicketUrl" />
+    </FormRow>
+    <FormRow Label="Program" Hint="One line, semicolon-separated works are fine." For="show-program">
+        <input id="show-program" class="form-input" type="text" @bind="Frontmatter.Program" />
+    </FormRow>
+    <FormRow Label="Role" For="show-role">
+        <select id="show-role" class="form-input" @bind="Frontmatter.Role">
+            <option value="">— pick one —</option>
+            <option value="soloist">Soloist</option>
+            <option value="principal">Principal</option>
+            <option value="section">Section</option>
+            <option value="conductor">Conductor</option>
+        </select>
+    </FormRow>
+    <FormRow Label="Description" Hint="Optional, shown under the title." For="show-description">
+        <textarea id="show-description" class="form-input" rows="3" @bind="Frontmatter.Description"></textarea>
+    </FormRow>
+</div>
+
+@code {
+    [Parameter] public required ShowFrontMatter Frontmatter { get; set; }
+}
