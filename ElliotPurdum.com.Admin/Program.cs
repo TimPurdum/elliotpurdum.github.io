@@ -16,5 +16,6 @@ builder.Services.AddSingleton(new GitHubRepoConfig(Owner: "TimPurdum", Repo: "el
 builder.Services.AddSingleton<AuthService>();
 builder.Services.AddSingleton<GitHubApiService>();
 builder.Services.AddSingleton<DeployStatusService>();
+builder.Services.AddSingleton<ImageUploadService>();
 
 await builder.Build().RunAsync();
