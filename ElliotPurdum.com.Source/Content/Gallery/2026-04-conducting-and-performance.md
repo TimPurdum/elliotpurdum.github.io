@@ -21,7 +21,9 @@ images:
   caption: Conducting a high school chamber orchestra
 - src: /images/gallery/Quartet Small Ensemble Contest.jpg
   caption: String quartet at a small-ensemble contest
-lastmodified: 2026-05-09 00:52:11
+lastmodified: 2026-05-13 20:01:04
 ---
 A small running gallery from concerts, festivals, and rehearsals across recent seasons.
+
+
 

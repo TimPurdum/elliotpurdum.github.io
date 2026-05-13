@@ -4,7 +4,7 @@ title: Beethoven's Symphony No. 3 in E-flat major, "Eroica"
 type: composition
 role: conductor
 coverImage: /images/gallery/Conducting BWSO.jpg
-lastmodified: 2026-05-13 15:18:53
+lastmodified: 2026-05-13 20:01:04
 ---
 Few works in the orchestral canon carry the historical and interpretive weight of the *Eroica*. Written in 1803–04, it marks the moment Beethoven essentially broke the symphony open — expanding its scale, emotional range, and structural ambition far beyond anything Haydn or Mozart had attempted.
 
@@ -15,4 +15,6 @@ The second movement, the famous *Marcia funebre*, is where conductors often reve
 Then there's the *scherzo* — a sudden burst of wit and energy that conductors must resist the urge to over-clarify, letting its off-beat surprises land with spontaneity.
 
 What makes the *Eroica* endlessly fascinating is that Beethoven wrote a work about *struggle and transformation* that itself *requires* struggle and transformation from every ensemble that takes it on. No two performances feel quite the same — and that's exactly the point.
+
+
 
