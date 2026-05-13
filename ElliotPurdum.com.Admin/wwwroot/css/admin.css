@@ -1182,8 +1182,11 @@ select.form-input { cursor: pointer; }
     .md-editor-host .toastui-editor-contents th {
         background-color: var(--color-surface-alt) !important;
     }
-    /* Links keep the gold accent (override Toast UI's blue). */
-    .md-editor-host .toastui-editor-contents a {
+    /* Links keep the gold accent (override Toast UI's blue).
+       Also override inline descendants (strong, em, span, del inside a link)
+       so formatted link text isn't stuck at --color-text. */
+    .md-editor-host .toastui-editor-contents a,
+    .md-editor-host .toastui-editor-contents a * {
         color: var(--color-accent) !important;
     }
     /* Inline code + fenced blocks inside the preview/WYSIWYG content. */
