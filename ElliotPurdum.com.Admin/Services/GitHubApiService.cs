@@ -77,7 +77,22 @@ public sealed class GitHubApiService(HttpClient http, AuthService auth, GitHubRe
         HttpResponseMessage res = await http.SendAsync(req, ct);
         res.EnsureSuccessStatusCode();
         PutResponse? wrapped = await res.Content.ReadFromJsonAsync<PutResponse>(JsonOptions, ct);
-        return new RepoCommitResult(wrapped?.Content?.Path ?? path, wrapped?.Content?.Sha ?? string.Empty);
+        return new RepoCommitResult(
+            wrapped?.Content?.Path ?? path,
+            wrapped?.Content?.Sha ?? string.Empty,
+            wrapped?.Commit?.Sha ?? string.Empty);
+    }
+
+    /// <summary>Fetch the most recent workflow run that ran on a specific commit, or null if one hasn't started yet.</summary>
+    public async Task<WorkflowRun?> GetLatestWorkflowRunForCommitAsync(string commitSha, CancellationToken ct = default)
+    {
+        using HttpRequestMessage req = new(HttpMethod.Get,
+            $"repos/{config.Owner}/{config.Repo}/actions/runs?head_sha={commitSha}&per_page=1");
+        ApplyAuth(req);
+        HttpResponseMessage res = await http.SendAsync(req, ct);
+        if (!res.IsSuccessStatusCode) return null;
+        WorkflowRunListResponse? wrapped = await res.Content.ReadFromJsonAsync<WorkflowRunListResponse>(JsonOptions, ct);
+        return wrapped?.WorkflowRuns?.FirstOrDefault();
     }
 
     /// <summary>Delete a file at <paramref name="path"/>. <paramref name="sha"/> is required.</summary>
@@ -110,8 +125,16 @@ public sealed class GitHubApiService(HttpClient http, AuthService auth, GitHubRe
 
     private sealed record PutBody(string Message, string Content, string? Sha);
     private sealed record DeleteBody(string Message, string Sha);
-    private sealed record PutResponse(RepoEntry? Content);
+    private sealed record PutResponse(RepoEntry? Content, PutCommit? Commit);
+    private sealed record PutCommit(string Sha);
+    private sealed record WorkflowRunListResponse(List<WorkflowRun>? WorkflowRuns);
 }
+
+public sealed record WorkflowRun(
+    long Id,
+    string Status,        // "queued" | "in_progress" | "completed"
+    string? Conclusion,   // "success" | "failure" | "cancelled" | "skipped" | "timed_out" | null
+    string HtmlUrl);
 
 /// <summary>Repo coordinates — hardcoded for now; promote to config when more flexibility is needed.</summary>
 public sealed record GitHubRepoConfig(string Owner, string Repo);
@@ -130,4 +153,5 @@ public sealed record RepoEntry(
 
 public sealed record RepoFile(string Path, string Sha, string Text);
 
-public sealed record RepoCommitResult(string Path, string Sha);
+/// <summary><paramref name="Sha"/> is the file's new sha; <paramref name="CommitSha"/> is the commit that created/updated it.</summary>
+public sealed record RepoCommitResult(string Path, string Sha, string CommitSha);
