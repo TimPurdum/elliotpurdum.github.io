@@ -3,7 +3,7 @@ layout: page
 title: About — Elliot Purdum
 subtitle: About
 description: A cellist and conductor based in Berea, Ohio.
-lastmodified: 2026-05-13 14:27:12
+lastmodified: 2026-05-13 14:49:30
 ---
 
 <figure class="about-portrait">
