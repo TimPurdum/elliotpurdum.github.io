@@ -29,8 +29,17 @@
     <FormRow Label="Embed URL" Hint="YouTube, Vimeo, SoundCloud — paste the iframe-ready URL." For="music-embed">
         <input id="music-embed" class="form-input" type="url" @bind="Frontmatter.EmbedUrl" placeholder="https://youtube.com/embed/…" />
     </FormRow>
-    <FormRow Label="Cover image" Hint="Path to an image in /images/ — image manager arrives in P3.4." For="music-cover">
-        <input id="music-cover" class="form-input" type="text" @bind="Frontmatter.CoverImage" placeholder="/images/music/something.jpg" />
+    <FormRow Label="Cover image" Hint="Pick or upload an image." For="music-cover">
+        <div class="form-input-with-picker">
+            <input id="music-cover" class="form-input" type="text" @bind="Frontmatter.CoverImage" placeholder="/images/music/something.jpg" />
+            <ImagePicker DefaultFolder="music" OnPicked="@(url => Frontmatter.CoverImage = url)" ButtonLabel="Pick / upload" />
+            @if (!string.IsNullOrWhiteSpace(Frontmatter.CoverImage))
+            {
+                <figure class="form-input__preview">
+                    <img src="@Frontmatter.CoverImage" alt="" loading="lazy" />
+                </figure>
+            }
+        </div>
     </FormRow>
     <FormRow Label="Description" Hint="Optional, shown under title and on the music landing card." For="music-description">
         <textarea id="music-description" class="form-input" rows="3" @bind="Frontmatter.Description"></textarea>
