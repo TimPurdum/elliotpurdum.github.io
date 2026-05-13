@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.elliotpurdum.com/about</loc>
+    <loc>https://www.elliotpurdum.com/about.html</loc>
     <lastmod>2026-05-13</lastmod>
   </url>
   <url>
@@ -9,59 +9,31 @@
     <lastmod>2026-05-13</lastmod>
   </url>
   <url>
-    <loc>https://www.elliotpurdum.com/blog</loc>
+    <loc>https://www.elliotpurdum.com/blog.html</loc>
   </url>
   <url>
-    <loc>https://www.elliotpurdum.com/gallery</loc>
+    <loc>https://www.elliotpurdum.com/gallery.html</loc>
   </url>
   <url>
-    <loc>https://www.elliotpurdum.com/music</loc>
+    <loc>https://www.elliotpurdum.com/music.html</loc>
   </url>
   <url>
-    <loc>https://www.elliotpurdum.com/shows</loc>
+    <loc>https://www.elliotpurdum.com/shows.html</loc>
   </url>
   <url>
-    <loc>https://www.elliotpurdum.com/post/2026/5/8/welcome</loc>
+    <loc>https://www.elliotpurdum.com/post/2026/5/8/welcome.html</loc>
     <lastmod>2026-05-08</lastmod>
   </url>
   <url>
-    <loc>https://www.elliotpurdum.com/music/beethovens-3rd</loc>
+    <loc>https://www.elliotpurdum.com/music/elgar-cello-concerto.html</loc>
     <lastmod>2026-05-12</lastmod>
   </url>
   <url>
-    <loc>https://www.elliotpurdum.com/show/2024/9/27/bw-symphony-orchestra</loc>
-    <lastmod>2024-09-27</lastmod>
-  </url>
-  <url>
-    <loc>https://www.elliotpurdum.com/show/2025/3/28/symphony-orchestra-and-wind-ensemble</loc>
-    <lastmod>2025-03-28</lastmod>
-  </url>
-  <url>
-    <loc>https://www.elliotpurdum.com/show/2025/5/1/symphony-orchestra-and-pops</loc>
-    <lastmod>2025-05-01</lastmod>
-  </url>
-  <url>
-    <loc>https://www.elliotpurdum.com/show/2025/9/26/symphony-orchestra-season-opener</loc>
-    <lastmod>2025-09-26</lastmod>
-  </url>
-  <url>
-    <loc>https://www.elliotpurdum.com/show/2026/1/30/symphony-orchestra-at-omea</loc>
-    <lastmod>2026-01-30</lastmod>
-  </url>
-  <url>
-    <loc>https://www.elliotpurdum.com/show/2026/2/20/symphony-orchestra</loc>
-    <lastmod>2026-02-20</lastmod>
-  </url>
-  <url>
-    <loc>https://www.elliotpurdum.com/show/2026/4/30/symphony-orchestra-pops</loc>
-    <lastmod>2026-04-30</lastmod>
-  </url>
-  <url>
-    <loc>https://www.elliotpurdum.com/show/2026/9/12/fall-orchestral-concert</loc>
+    <loc>https://www.elliotpurdum.com/show/2026/9/12/fall-orchestral-concert.html</loc>
     <lastmod>2026-09-12</lastmod>
   </url>
   <url>
-    <loc>https://www.elliotpurdum.com/gallery/conducting-and-performance</loc>
+    <loc>https://www.elliotpurdum.com/gallery/conducting-and-performance.html</loc>
     <lastmod>2026-04-01</lastmod>
   </url>
 </urlset>
