@@ -1,0 +1,27 @@
+@* Static page frontmatter form. *@
+
+<div class="form-grid">
+    <FormRow Label="Title" Required="true" For="page-title"
+             Hint="Used in the browser tab and the OG title tag.">
+        <input id="page-title" class="form-input" type="text" required @bind="Frontmatter.Title" />
+    </FormRow>
+    <FormRow Label="Subtitle" For="page-subtitle"
+             Hint="On the home page this becomes the eyebrow above the hero name.">
+        <input id="page-subtitle" class="form-input" type="text" @bind="Frontmatter.Subtitle" />
+    </FormRow>
+    <FormRow Label="Description" For="page-description"
+             Hint="Optional, used for OG description.">
+        <textarea id="page-description" class="form-input" rows="3" @bind="Frontmatter.Description"></textarea>
+    </FormRow>
+    <FormRow Label="Layout" For="page-layout"
+             Hint="page = standard wrapper; home = hero + upcoming/recent sections. Stick with the existing value unless you know you want to change it.">
+        <select id="page-layout" class="form-input" @bind="Frontmatter.Layout">
+            <option value="page">page</option>
+            <option value="home">home</option>
+        </select>
+    </FormRow>
+</div>
+
+@code {
+    [Parameter] public required PageFrontMatter Frontmatter { get; set; }
+}

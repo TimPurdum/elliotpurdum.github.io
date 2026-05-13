@@ -32,7 +32,10 @@ else
     <table class="content-table">
         <thead>
             <tr>
-                <th class="content-table__date">Date</th>
+                @if (Pattern != ContentNamePattern.Plain)
+                {
+                    <th class="content-table__date">Date</th>
+                }
                 <th class="content-table__slug">Slug</th>
                 <th class="content-table__actions"><span class="visually-hidden">Actions</span></th>
             </tr>
@@ -41,9 +44,12 @@ else
             @foreach (Row row in _rows)
             {
                 <tr class="content-table__row">
-                    <td class="content-table__date">
-                        <time datetime="@row.Date.ToString("yyyy-MM-dd")">@row.Date.ToString(DateFormat)</time>
-                    </td>
+                    @if (Pattern != ContentNamePattern.Plain)
+                    {
+                        <td class="content-table__date">
+                            <time datetime="@row.Date.ToString("yyyy-MM-dd")">@row.Date.ToString(DateFormat)</time>
+                        </td>
+                    }
                     <td class="content-table__slug">
                         <a class="content-table__title" href="/admin/@TypeSlug/edit/@Uri.EscapeDataString(row.FileName)">@row.Slug</a>
                     </td>
@@ -84,7 +90,12 @@ else
     private string? _pendingDelete;
     private bool _busy;
 
-    private string DateFormat => Pattern == ContentNamePattern.YearMonth ? "MMM yyyy" : "MMM d, yyyy";
+    private string DateFormat => Pattern switch
+    {
+        ContentNamePattern.YearMonth => "MMM yyyy",
+        ContentNamePattern.Plain     => "—", // not used; column is hidden
+        _                            => "MMM d, yyyy"
+    };
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -95,13 +106,14 @@ else
         try
         {
             IReadOnlyList<RepoEntry> entries = await Api.ListDirectoryAsync(ContentPath);
-            _rows = entries
+            IEnumerable<Row> parsed = entries
                 .Where(e => e.Type == "file" && e.Name.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
                 .Select(ParseRow)
                 .Where(r => r is not null)
-                .Select(r => r!)
-                .OrderByDescending(r => r.Date)
-                .ToList();
+                .Select(r => r!);
+            _rows = Pattern == ContentNamePattern.Plain
+                ? parsed.OrderBy(r => r.Slug, StringComparer.OrdinalIgnoreCase).ToList()
+                : parsed.OrderByDescending(r => r.Date).ToList();
         }
         catch (Exception ex)
         {
@@ -115,11 +127,16 @@ else
 
     private Row? ParseRow(RepoEntry entry)
     {
-        // Filenames: YYYY-MM-DD-slug.md (posts/music/shows) or YYYY-MM-slug.md (gallery).
         string baseName = entry.Name;
         if (baseName.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
         {
             baseName = baseName[..^3];
+        }
+
+        if (Pattern == ContentNamePattern.Plain)
+        {
+            // Static pages — no date, no parsing. Sort by name alphabetically.
+            return new Row(entry.Name, entry.Sha, entry.Path, baseName, DateTime.MinValue);
         }
 
         string[] parts = baseName.Split('-', Pattern == ContentNamePattern.YearMonth ? 3 : 4);
