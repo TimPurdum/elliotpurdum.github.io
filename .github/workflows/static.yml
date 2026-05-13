@@ -12,6 +12,11 @@ on:
       - main
 
   workflow_dispatch:
+    inputs:
+      aot:
+        description: 'Publish with AOT (large bundle, slower CI, faster client)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -63,10 +68,27 @@ jobs:
         working-directory: BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler
         run: dotnet run -c Release --no-restore
 
+      # AOT increases the published bundle size significantly, so it remains off by default and is
+      # enabled only via the workflow_dispatch input. github.event.inputs.aot is the string "true"
+      # or "false" on workflow_dispatch, and an empty string on push events, so the expression
+      # safely collapses to no extra flag for regular pushes.
       - name: Publish public site
-        run: dotnet publish ElliotPurdum.com/ElliotPurdum.com.csproj -c Release --no-restore
+        run: dotnet publish ElliotPurdum.com/ElliotPurdum.com.csproj -c Release --no-restore${{ github.event.inputs.aot == 'true' && ' /p:RunAOT=true' || '' }}
+
+      # The admin portal is a separate Blazor WASM app. Its output only changes when admin sources
+      # or publish inputs do — every content edit (post / music / show / gallery / page) leaves
+      # admin untouched. Cache the publish output keyed on the admin source tree plus dependency
+      # and tooling inputs so changes to NuGet feeds or SDK selection also invalidate the cache.
+      # Saves ~the full WASM publish step (~30–60s on a cold runner) on every content-only commit.
+      - name: Cache admin publish output
+        id: admin-cache
+        uses: actions/cache@v4
+        with:
+          path: admin-publish/wwwroot
+          key: admin-publish-${{ runner.os }}-dotnet-10.x-${{ hashFiles('ElliotPurdum.com.Admin/**', '!ElliotPurdum.com.Admin/bin/**', '!ElliotPurdum.com.Admin/obj/**', '**/NuGet.Config', 'global.json') }}
 
       - name: Publish admin portal
+        if: steps.admin-cache.outputs.cache-hit != 'true'
         run: dotnet publish ElliotPurdum.com.Admin/ElliotPurdum.com.Admin.csproj -c Release --no-restore -o admin-publish
 
       - name: Stage admin under /admin
