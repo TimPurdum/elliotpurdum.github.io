@@ -1214,11 +1214,15 @@ a:hover {
     background-image: none;
     padding-bottom: 0;
     color: var(--color-muted);
-    transition: color 200ms ease;
+    transition: color 200ms ease, background-size 220ms ease;
 }
 .site-footer__social-link:hover,
 .site-footer__social-link:focus-visible {
     color: var(--color-accent);
+    background-image: linear-gradient(to right, var(--color-accent), var(--color-accent));
+    background-repeat: no-repeat;
+    background-size: 100% 2px;
+    background-position: 0 100%;
 }
 .site-footer__social-sep {
     color: var(--color-accent-soft);
