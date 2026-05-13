@@ -2,6 +2,7 @@
 @page "/{TypeSlug}/edit/{File}"
 @inject GitHubApiService Api
 @inject NavigationManager Nav
+@inject DeployStatusService Deploy
 
 <PageTitle>@PageTitleText — admin</PageTitle>
 
@@ -221,7 +222,15 @@ else
                 ? $"admin: create {TypeSlug} entry {StripExtension(fileName)}"
                 : $"admin: update {TypeSlug} entry {StripExtension(fileName)}";
 
-            await Api.PutTextFileAsync(path, fileText, commitMessage, _existingSha);
+            RepoCommitResult result = await Api.PutTextFileAsync(path, fileText, commitMessage, _existingSha);
+
+            // Track the deploy so the user sees a banner update as the commit moves through CI.
+            // ViewLiveUrl is computed from filename + content type.
+            string? viewLive = BuildViewLiveUrl(_kind.Value, fileName);
+            if (!string.IsNullOrEmpty(result.CommitSha))
+            {
+                Deploy.Track(result.CommitSha, viewLive);
+            }
 
             Nav.NavigateTo($"/admin/{TypeSlug}");
         }
@@ -254,6 +263,47 @@ else
         ContentKind.Gallery => "ElliotPurdum.com.Source/Content/Gallery",
         _ => throw new InvalidOperationException()
     };
+
+    /// <summary>Reverse the BlogGenerator's URL convention so we can deep-link the user to their just-saved entry.</summary>
+    private static string? BuildViewLiveUrl(ContentKind kind, string fileName)
+    {
+        string baseName = fileName.EndsWith(".md", StringComparison.OrdinalIgnoreCase) ? fileName[..^3] : fileName;
+        return kind switch
+        {
+            ContentKind.Post when TryParseDated(baseName, out int y, out int m, out int d, out string slug)
+                => $"/post/{y}/{m}/{d}/{slug}.html",
+            ContentKind.Show when TryParseDated(baseName, out int y, out int m, out int d, out string slug)
+                => $"/show/{y}/{m}/{d}/{slug}.html",
+            ContentKind.Music when TryParseDated(baseName, out _, out _, out _, out string slug)
+                => $"/music/{slug}.html",
+            ContentKind.Gallery when TryParseYearMonth(baseName, out _, out _, out string slug)
+                => $"/gallery/{slug}.html",
+            _ => null
+        };
+    }
+
+    private static bool TryParseDated(string baseName, out int year, out int month, out int day, out string slug)
+    {
+        year = month = day = 0; slug = "";
+        string[] parts = baseName.Split('-', 4);
+        if (parts.Length < 4) return false;
+        if (!int.TryParse(parts[0], out year) ||
+            !int.TryParse(parts[1], out month) ||
+            !int.TryParse(parts[2], out day)) return false;
+        slug = parts[3];
+        return true;
+    }
+
+    private static bool TryParseYearMonth(string baseName, out int year, out int month, out string slug)
+    {
+        year = month = 0; slug = "";
+        string[] parts = baseName.Split('-', 3);
+        if (parts.Length < 3) return false;
+        if (!int.TryParse(parts[0], out year) ||
+            !int.TryParse(parts[1], out month)) return false;
+        slug = parts[2];
+        return true;
+    }
 
     private string StampAndBuild<TFront>(TFront fm, Action<TFront> stamp) where TFront : new()
     {
