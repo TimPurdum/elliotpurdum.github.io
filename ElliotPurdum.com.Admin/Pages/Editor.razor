@@ -42,28 +42,31 @@ else
             <fieldset class="editor-fieldset">
                 <legend class="editor-fieldset__legend">File</legend>
                 <div class="form-grid">
-                    <FormRow Label="Date" Required="true" For="entry-date"
-                             Hint="@(_kind == ContentKind.Gallery ? "Approximate month — used for sort order." : (_kind == ContentKind.Show ? "Performance date — embedded in the URL." : "Date used in the filename and (for posts) in the URL."))">
-                        @if (_kind == ContentKind.Gallery)
-                        {
-                            <input id="entry-date" class="form-input" type="month" required
-                                   value="@_dateMonth"
-                                   @oninput="@(e => _dateMonth = e.Value?.ToString() ?? "")" />
-                        }
-                        else
-                        {
-                            <input id="entry-date" class="form-input" type="date" required
-                                   value="@_dateFull"
-                                   @oninput="@(e => _dateFull = e.Value?.ToString() ?? "")" />
-                        }
-                    </FormRow>
+                    @if (_kind != ContentKind.Page)
+                    {
+                        <FormRow Label="Date" Required="true" For="entry-date"
+                                 Hint="@(_kind == ContentKind.Gallery ? "Approximate month — used for sort order." : (_kind == ContentKind.Show ? "Performance date — embedded in the URL." : "Date used in the filename and (for posts) in the URL."))">
+                            @if (_kind == ContentKind.Gallery)
+                            {
+                                <input id="entry-date" class="form-input" type="month" required
+                                       value="@_dateMonth"
+                                       @oninput="@(e => _dateMonth = e.Value?.ToString() ?? "")" />
+                            }
+                            else
+                            {
+                                <input id="entry-date" class="form-input" type="date" required
+                                       value="@_dateFull"
+                                       @oninput="@(e => _dateFull = e.Value?.ToString() ?? "")" />
+                            }
+                        </FormRow>
+                    }
                     <FormRow Label="Slug" Required="true" For="entry-slug"
-                             Hint="lowercase-with-hyphens. Becomes the filename and (for music/gallery) the URL.">
+                             Hint="@(_kind == ContentKind.Page ? "Becomes the filename and URL — e.g. 'about' renders at /about.html, 'index' renders at /." : "lowercase-with-hyphens. Becomes the filename and (for music/gallery) the URL.")">
                         <input id="entry-slug" class="form-input" type="text" required
                                value="@_slug"
                                @oninput="@(e => _slug = e.Value?.ToString() ?? "")"
                                pattern="[a-z0-9][a-z0-9\-]*"
-                               placeholder="my-new-entry" />
+                               placeholder="@(_kind == ContentKind.Page ? "about" : "my-new-entry")" />
                     </FormRow>
                 </div>
             </fieldset>
@@ -77,14 +80,19 @@ else
                 case ContentKind.Music:   <MusicEditorForm   Frontmatter="_musicFront"   /> ; break;
                 case ContentKind.Show:    <ShowEditorForm    Frontmatter="_showFront"    /> ; break;
                 case ContentKind.Gallery: <GalleryEditorForm Frontmatter="_galleryFront" /> ; break;
+                case ContentKind.Page:    <PageEditorForm    Frontmatter="_pageFront"    /> ; break;
             }
         </fieldset>
 
         <fieldset class="editor-fieldset">
-            <legend class="editor-fieldset__legend">@(_kind == ContentKind.Gallery ? "Notes" : "Body")</legend>
+            <legend class="editor-fieldset__legend">@BodyLegend</legend>
             @if (_kind == ContentKind.Gallery)
             {
                 <p class="form-row__hint">Optional prose shown below the photo grid.</p>
+            }
+            else if (_kind == ContentKind.Page && _pageFront.Layout == "home")
+            {
+                <p class="form-row__hint">Lede paragraph(s) shown under the hero name. Plain markdown — no need to repeat the title or eyebrow.</p>
             }
             <MarkdownEditor Value="@_body" ValueChanged="@(v => _body = v)" Rows="@(_kind == ContentKind.Gallery ? 10 : 22)" />
         </fieldset>
@@ -119,6 +127,7 @@ else
     private MusicFrontMatter _musicFront = new();
     private ShowFrontMatter _showFront = new();
     private GalleryFrontMatter _galleryFront = new();
+    private PageFrontMatter _pageFront = new();
 
     private string _body = "";
     private string? _existingSha;     // null on /new
@@ -133,6 +142,13 @@ else
             ? $"New {SingularNoun(_kind)}"
             : $"Edit {SingularNoun(_kind)}";
 
+    private string BodyLegend => _kind switch
+    {
+        ContentKind.Gallery => "Notes",
+        ContentKind.Page when _pageFront.Layout == "home" => "Hero lede",
+        _ => "Body"
+    };
+
     protected override async Task OnParametersSetAsync()
     {
         _kind = TypeSlug switch
@@ -141,6 +157,7 @@ else
             "music"   => ContentKind.Music,
             "shows"   => ContentKind.Show,
             "gallery" => ContentKind.Gallery,
+            "pages"   => ContentKind.Page,
             _ => null
         };
         if (_kind is null) { _loading = false; return; }
@@ -192,6 +209,9 @@ else
             case ContentKind.Gallery:
                 (_galleryFront, _body) = MarkdownDocument.Parse<GalleryFrontMatter>(text);
                 break;
+            case ContentKind.Page:
+                (_pageFront, _body) = MarkdownDocument.Parse<PageFrontMatter>(text);
+                break;
         }
     }
 
@@ -210,6 +230,7 @@ else
                 ContentKind.Music   => StampAndBuild(_musicFront,   mf => mf.Lastmodified = nowStamp),
                 ContentKind.Show    => StampAndBuild(_showFront,    sf => sf.Lastmodified = nowStamp),
                 ContentKind.Gallery => StampAndBuild(_galleryFront, gf => gf.Lastmodified = nowStamp),
+                ContentKind.Page    => StampAndBuild(_pageFront,    pf => pf.Lastmodified = nowStamp),
                 _ => throw new InvalidOperationException()
             };
 
@@ -251,6 +272,7 @@ else
         return _kind switch
         {
             ContentKind.Gallery => $"{_dateMonth}-{slug}.md",
+            ContentKind.Page    => $"{slug}.md",
             _                   => $"{_dateFull}-{slug}.md"
         };
     }
@@ -261,6 +283,7 @@ else
         ContentKind.Music   => "ElliotPurdum.com.Source/Content/Music",
         ContentKind.Show    => "ElliotPurdum.com.Source/Content/Shows",
         ContentKind.Gallery => "ElliotPurdum.com.Source/Content/Gallery",
+        ContentKind.Page    => "ElliotPurdum.com.Source/Content/Pages",
         _ => throw new InvalidOperationException()
     };
 
@@ -278,6 +301,8 @@ else
                 => $"/music/{slug}.html",
             ContentKind.Gallery when TryParseYearMonth(baseName, out _, out _, out string slug)
                 => $"/gallery/{slug}.html",
+            ContentKind.Page
+                => baseName == "index" ? "/" : $"/{baseName}.html",
             _ => null
         };
     }
@@ -320,8 +345,9 @@ else
         ContentKind.Music   => "music entry",
         ContentKind.Show    => "show",
         ContentKind.Gallery => "gallery",
+        ContentKind.Page    => "page",
         _ => "entry"
     };
 
-    public enum ContentKind { Post, Music, Show, Gallery }
+    public enum ContentKind { Post, Music, Show, Gallery, Page }
 }
