@@ -68,8 +68,8 @@
     <strong>Renaming:</strong> the <em>Date</em> and <em>Slug</em> fields stay editable on existing entries.
     Change either one and a confirmation line appears at the bottom of the File section showing the new
     filename. Save then writes the entry under the new name and removes the old file (two commits, both
-    automatic). The old URL stops working after the next deploy — there is no automatic redirect, so only
-    rename if a stale link won't matter. The home page (<code>index</code>) can't be renamed.
+    automatic). There is no automatic redirect. The old URL may keep working until old generated output is
+    pruned, so rename only if a stale link won't matter. The home page (<code>index</code>) can't be renamed.
 </p>
 </section>
 
