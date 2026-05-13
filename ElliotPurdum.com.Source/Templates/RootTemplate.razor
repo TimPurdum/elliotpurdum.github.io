@@ -5,6 +5,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @* Static HTML is regenerated on every deploy; force browsers to revalidate so admin-edited
+       pages show up on the next visit instead of waiting for the default GH Pages 10-minute TTL.
+       Hash-named Blazor framework files and images still cache normally. *@
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
     <title>@Title</title>
     <meta name="generator" content="BlogGenerator" />
     <meta property="og:title" content="@Title" />
