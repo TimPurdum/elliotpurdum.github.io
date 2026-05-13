@@ -1,81 +1,74 @@
 @inject IJSRuntime JS
-@implements IDisposable
+@implements IAsyncDisposable
 
-<div class="md-editor">
-    <div class="md-editor__panel md-editor__panel--source">
-        <label class="md-editor__label" for="@_textareaId">Body</label>
-        <textarea id="@_textareaId"
-                  class="md-editor__source"
-                  value="@Value"
-                  spellcheck="true"
-                  @oninput="OnInput"
-                  rows="@Rows"
-                  placeholder="Write in markdown — headings with #, bold with **, lists with -…"></textarea>
-    </div>
-    <div class="md-editor__panel md-editor__panel--preview">
-        <span class="md-editor__label">Preview</span>
-        <div class="md-editor__preview md-preview">
-            @if (string.IsNullOrWhiteSpace(_previewHtml))
-            {
-                <p class="md-editor__empty">Preview appears here as you type.</p>
-            }
-            else
-            {
-                @((MarkupString)_previewHtml)
-            }
-        </div>
-    </div>
-</div>
+<div class="md-editor-host" @ref="_host"></div>
 
 @code {
     [Parameter] public string Value { get; set; } = "";
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
-    [Parameter] public int Rows { get; set; } = 22;
+    /// <summary>"wysiwyg" or "markdown" — what mode the editor opens in. Users can toggle either way from the toolbar.</summary>
+    [Parameter] public string StartMode { get; set; } = "wysiwyg";
+    /// <summary>CSS height passed to Toast UI (e.g. "32rem" or "500px").</summary>
+    [Parameter] public string Height { get; set; } = "32rem";
 
-    private readonly string _textareaId = $"md-editor-{Guid.NewGuid():N}";
-    private string _previewHtml = "";
-    private CancellationTokenSource? _debounceCts;
-    private string _lastRendered = "";
+    private ElementReference _host;
+    private DotNetObjectReference<MarkdownEditor>? _selfRef;
+    private IJSObjectReference? _editorHandle;
+    private bool _ready;
+    /// <summary>True while we're applying a Value change FROM the parent so we don't loop the change event back at them.</summary>
+    private bool _suppressNextChange;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (Value != _lastRendered)
+        if (firstRender)
         {
-            _lastRendered = Value;
-            await UpdatePreviewAsync(Value);
+            _selfRef = DotNetObjectReference.Create(this);
+            _editorHandle = await JS.InvokeAsync<IJSObjectReference>(
+                "adminCreateRichEditor", _host, Value ?? "", _selfRef,
+                new { startMode = StartMode, height = Height });
+            _ready = true;
+            return;
+        }
+
+        // Parent pushed a new Value (e.g. switching between entries on the same Editor page).
+        // Push it down to Toast UI if it differs from what the editor currently holds.
+        if (_ready && _editorHandle is not null)
+        {
+            string current = await _editorHandle.InvokeAsync<string>("getMarkdown");
+            if (current != (Value ?? ""))
+            {
+                _suppressNextChange = true;
+                await _editorHandle.InvokeVoidAsync("setMarkdown", Value ?? "");
+            }
         }
     }
 
-    private async Task OnInput(ChangeEventArgs e)
+    [JSInvokable]
+    public async Task OnEditorChanged(string markdown)
     {
-        string newValue = e.Value?.ToString() ?? "";
-        await ValueChanged.InvokeAsync(newValue);
-
-        // Debounce preview rendering — re-running marked.js on every keystroke for a long post is wasteful.
-        _debounceCts?.Cancel();
-        _debounceCts = new CancellationTokenSource();
-        CancellationToken token = _debounceCts.Token;
-        try
+        if (_suppressNextChange)
         {
-            await Task.Delay(180, token);
-            _lastRendered = newValue;
-            await UpdatePreviewAsync(newValue);
-            StateHasChanged();
+            _suppressNextChange = false;
+            return;
         }
-        catch (TaskCanceledException) { /* superseded by a newer keystroke */ }
+        Value = markdown ?? "";
+        await ValueChanged.InvokeAsync(Value);
     }
 
-    private async Task UpdatePreviewAsync(string text)
+    public async ValueTask DisposeAsync()
     {
         try
         {
-            _previewHtml = await JS.InvokeAsync<string>("adminRenderMarkdown", text);
+            if (_editorHandle is not null)
+            {
+                await _editorHandle.InvokeVoidAsync("destroy");
+                await _editorHandle.DisposeAsync();
+            }
         }
         catch
         {
-            _previewHtml = "<p><em>Preview unavailable.</em></p>";
+            // Page navigation can tear the JS side down before us; swallow.
         }
+        _selfRef?.Dispose();
     }
-
-    public void Dispose() => _debounceCts?.Cancel();
 }
