@@ -1140,10 +1140,61 @@ select.form-input { cursor: pointer; }
         background: var(--color-bg) !important;
         color: var(--color-text) !important;
     }
-    .md-editor-host .toastui-editor-md-preview pre,
-    .md-editor-host .toastui-editor-md-preview code {
-        background: var(--color-surface-alt) !important;
+    /* Toast UI hard-codes `color: #222` on the actual text elements inside .toastui-editor-contents
+       (p, h1–h6, table, th, ul, ol, blockquote, strong, em, ...). Element-level color wins per-element
+       over our class-level color even with !important — color isn't inherited when the child has its
+       own rule. So we have to re-color every node that holds text in both the WYSIWYG pane and the
+       preview pane. Same selector covers both because both surfaces share .toastui-editor-contents. */
+    .md-editor-host .toastui-editor-contents p,
+    .md-editor-host .toastui-editor-contents h1,
+    .md-editor-host .toastui-editor-contents h2,
+    .md-editor-host .toastui-editor-contents h3,
+    .md-editor-host .toastui-editor-contents h4,
+    .md-editor-host .toastui-editor-contents h5,
+    .md-editor-host .toastui-editor-contents h6,
+    .md-editor-host .toastui-editor-contents ul,
+    .md-editor-host .toastui-editor-contents ol,
+    .md-editor-host .toastui-editor-contents li,
+    .md-editor-host .toastui-editor-contents table,
+    .md-editor-host .toastui-editor-contents th,
+    .md-editor-host .toastui-editor-contents td,
+    .md-editor-host .toastui-editor-contents th p,
+    .md-editor-host .toastui-editor-contents blockquote,
+    .md-editor-host .toastui-editor-contents blockquote ul,
+    .md-editor-host .toastui-editor-contents strong,
+    .md-editor-host .toastui-editor-contents em,
+    .md-editor-host .toastui-editor-contents span,
+    .md-editor-host .toastui-editor-contents del {
         color: var(--color-text) !important;
+    }
+    .md-editor-host .toastui-editor-contents blockquote {
+        border-left-color: var(--color-accent-soft) !important;
+    }
+    /* Tables: Toast UI gives <th> a #555 background with white text — keep the contrast inverted in dark
+       mode (lighter header band on dark surface). */
+    .md-editor-host .toastui-editor-contents table {
+        border-color: var(--color-accent-soft) !important;
+    }
+    .md-editor-host .toastui-editor-contents th,
+    .md-editor-host .toastui-editor-contents td {
+        border-color: var(--color-accent-soft) !important;
+    }
+    .md-editor-host .toastui-editor-contents th {
+        background-color: var(--color-surface-alt) !important;
+    }
+    /* Links keep the gold accent (override Toast UI's blue).
+       Also override inline descendants (strong, em, span, del inside a link)
+       so formatted link text isn't stuck at --color-text. */
+    .md-editor-host .toastui-editor-contents a,
+    .md-editor-host .toastui-editor-contents a * {
+        color: var(--color-accent) !important;
+    }
+    /* Inline code + fenced blocks inside the preview/WYSIWYG content. */
+    .md-editor-host .toastui-editor-contents pre,
+    .md-editor-host .toastui-editor-contents pre code,
+    .md-editor-host .toastui-editor-contents code {
+        background-color: var(--color-surface-alt) !important;
+        color: var(--color-accent) !important;
     }
 }
 
