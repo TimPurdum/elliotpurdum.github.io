@@ -20,6 +20,32 @@
             <option value="home">home</option>
         </select>
     </FormRow>
+    @if (Frontmatter.Layout == "home")
+    {
+        <FormRow Label="Hero image" For="page-hero-image"
+                 Hint="The figure that sits under the hero name. Pick or upload, or paste a path.">
+            <div class="form-input-with-picker">
+                <input id="page-hero-image" class="form-input" type="text"
+                       @bind="Frontmatter.HeroImage"
+                       placeholder="/images/hero/something.jpg" />
+                <ImagePicker DefaultFolder="hero"
+                             OnPicked="@(url => Frontmatter.HeroImage = url)"
+                             ButtonLabel="Pick / upload" />
+                @if (!string.IsNullOrWhiteSpace(Frontmatter.HeroImage))
+                {
+                    <figure class="form-input__preview">
+                        <img src="@Frontmatter.HeroImage" alt="" loading="lazy" />
+                    </figure>
+                }
+            </div>
+        </FormRow>
+        <FormRow Label="Hero image alt" For="page-hero-alt"
+                 Hint="Screen-reader description of the hero image — short phrase, not a caption.">
+            <input id="page-hero-alt" class="form-input" type="text"
+                   @bind="Frontmatter.HeroImageAlt"
+                   placeholder="Elliot performing solo cello" />
+        </FormRow>
+    }
 </div>
 
 @code {
