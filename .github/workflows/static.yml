@@ -66,7 +66,20 @@ jobs:
       - name: Publish public site
         run: dotnet publish ElliotPurdum.com/ElliotPurdum.com.csproj -c Release --no-restore
 
+      # The admin portal is a separate Blazor WASM app. Its output only changes when admin sources
+      # do — every content edit (post / music / show / gallery / page) leaves admin untouched. Cache
+      # the publish output keyed on the admin's source tree so we only re-run dotnet publish when
+      # something in ElliotPurdum.com.Admin actually changes. Saves ~the full WASM publish step
+      # (~30–60s on a cold runner) on every content-only commit.
+      - name: Cache admin publish output
+        id: admin-cache
+        uses: actions/cache@v4
+        with:
+          path: admin-publish/wwwroot
+          key: admin-publish-${{ runner.os }}-${{ hashFiles('ElliotPurdum.com.Admin/**', '!ElliotPurdum.com.Admin/bin/**', '!ElliotPurdum.com.Admin/obj/**') }}
+
       - name: Publish admin portal
+        if: steps.admin-cache.outputs.cache-hit != 'true'
         run: dotnet publish ElliotPurdum.com.Admin/ElliotPurdum.com.Admin.csproj -c Release --no-restore -o admin-publish
 
       - name: Stage admin under /admin
