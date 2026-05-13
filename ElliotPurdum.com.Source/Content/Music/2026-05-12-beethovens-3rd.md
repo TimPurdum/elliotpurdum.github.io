@@ -3,7 +3,8 @@ layout: music
 title: Beethoven's Symphony No. 3 in E-flat major, "Eroica"
 type: composition
 role: conductor
-lastmodified: 2026-05-13 03:03:21
+coverImage: /images/gallery/Conducting BWSO.jpg
+lastmodified: 2026-05-13 03:10:38
 ---
 
 Few works in the orchestral canon carry the historical and interpretive weight of the *Eroica*. Written in 1803–04, it marks the moment Beethoven essentially broke the symphony open — expanding its scale, emotional range, and structural ambition far beyond anything Haydn or Mozart had attempted.
