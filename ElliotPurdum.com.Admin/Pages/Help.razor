@@ -1,0 +1,198 @@
+@page "/help"
+
+<PageTitle>Help — admin</PageTitle>
+
+<header class="page-heading">
+    <h1>Help</h1>
+    <p class="page-heading__lede">How to manage the site from this admin.</p>
+</header>
+
+<article class="help">
+
+<section class="help__section">
+<h2>Signing in</h2>
+<p>
+    The admin uses a <strong>GitHub Personal Access Token</strong> (PAT) so it can commit your changes
+    to the site's repository. Tokens are valid for up to a year, after which you'll need to generate a
+    new one.
+</p>
+<ol>
+    <li>Go to <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener">GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens</a> and click <em>Generate new token</em>.</li>
+    <li>Repository access: <strong>Only select repositories</strong> → pick <code>elliotpurdum.github.io</code>.</li>
+    <li>Permissions: set <strong>Contents</strong> to <em>Read and write</em>. Leave everything else default.</li>
+    <li>Click <em>Generate token</em>, copy the value, paste it into the admin's sign-in screen.</li>
+</ol>
+<p>The token is stored in your browser's local storage on this device only. Sign out clears it.</p>
+</section>
+
+<hr />
+
+<section class="help__section">
+<h2>The seven tabs</h2>
+<dl class="help__dl">
+    <dt>Dashboard</dt>
+    <dd>Overview with counts of every content type, plus quick "New" buttons.</dd>
+
+    <dt>Pages</dt>
+    <dd>The site's static pages — home (the hero block on the front page), about, and any other top-level page. Edit the body in markdown.</dd>
+
+    <dt>Posts</dt>
+    <dd>Blog entries. Date-driven; the file's date determines its URL.</dd>
+
+    <dt>Music</dt>
+    <dd>Performances, recordings, compositions. Each entry has type / role / ensemble / venue / embed URL / cover image.</dd>
+
+    <dt>Shows</dt>
+    <dd>Upcoming and past concerts. The date is the actual <em>performance</em> date — used in the URL and the "Upcoming" sort.</dd>
+
+    <dt>Gallery</dt>
+    <dd>Photo collections. Each gallery is one page with multiple images and captions, arranged in a grid.</dd>
+
+    <dt>Images</dt>
+    <dd>The image library — browse what's been uploaded, upload new images, delete unused ones.</dd>
+</dl>
+</section>
+
+<hr />
+
+<section class="help__section">
+<h2>Editing an existing entry</h2>
+<ol>
+    <li>Click the tab (Posts, Music, Shows, Gallery, or Pages).</li>
+    <li>Click the entry's slug in the table to open the editor.</li>
+    <li>Change whatever you need to in the form fields or the body.</li>
+    <li>Click <strong>Save</strong>.</li>
+</ol>
+<p>The page reloads to the list. A banner appears at the bottom of the screen tracking the deploy.</p>
+</section>
+
+<section class="help__section">
+<h2>Creating a new entry</h2>
+<ol>
+    <li>Click the tab for the type of content you're creating.</li>
+    <li>Click <strong>New post</strong> / <strong>New music entry</strong> / etc.</li>
+    <li>Pick a date (for posts/music/shows) or month (for gallery). Pages don't have dates.</li>
+    <li>
+        Type a slug — lowercase, words separated by hyphens. For example <code>dvorak-cello-concerto</code> rather than
+        <code>Dvorak Cello Concerto</code>. This becomes part of the file name and the URL.
+    </li>
+    <li>Fill in the form fields and write the body.</li>
+    <li>Click <strong>Save</strong>.</li>
+</ol>
+<p class="help__warning">
+    <strong>Slug uniqueness:</strong> Music and Gallery entries can't share a slug with another in the same
+    category — the URLs are flat, so two entries called <code>spring-recital</code> would collide. The site's
+    build will fail with a clear error if that happens; rename one to fix.
+</p>
+</section>
+
+<section class="help__section">
+<h2>Working with images</h2>
+<p>
+    Anywhere a form field expects an image path (music covers, gallery images), there's a <strong>Pick / upload</strong>
+    button next to it. Click it to:
+</p>
+<ul>
+    <li>Pick an image that's already been uploaded (organized by folder — <code>music/</code>, <code>gallery/</code>, <code>hero/</code>, <code>headshot/</code>).</li>
+    <li>Upload a new image — choose any folder and pick a file from your computer.</li>
+</ul>
+<p>
+    Uploaded images are automatically resized to a maximum of 2000px wide and saved as JPEG. The site stays small
+    and snappy even with high-resolution source photos. Original photos on your device aren't touched.
+</p>
+<p>
+    Use the <strong>Images</strong> tab to browse and clean up the library. Each image has a <em>Copy path</em>
+    button (puts the path in your clipboard, ready to paste into another field) and a <em>Delete</em> button.
+</p>
+</section>
+
+<hr />
+
+<section class="help__section">
+<h2>After you save: the deploy banner</h2>
+<p>
+    When you save, a small banner appears in the bottom-left corner with the build status:
+</p>
+<dl class="help__dl">
+    <dt>Saved. Waiting for the build to start…</dt>
+    <dd>GitHub has the commit; the build hasn't been picked up yet. Usually a few seconds.</dd>
+
+    <dt>Saved. Building the site…</dt>
+    <dd>The build is running. Typically 60–90 seconds.</dd>
+
+    <dt>Site updated — your change is live.</dt>
+    <dd>Click <strong>View live</strong> to see your change on the public site.</dd>
+
+    <dt>Build failed.</dt>
+    <dd>Click <strong>View log</strong> to see what went wrong. Most common cause: a duplicate slug in Music or Gallery.</dd>
+</dl>
+<p>
+    You don't have to wait around — the banner persists if you navigate to other admin tabs, and updates itself.
+    Close it with the × when you're done.
+</p>
+</section>
+
+<hr />
+
+<section class="help__section">
+<h2>Deleting</h2>
+<p>
+    Every list page has a <em>Delete</em> button on each row. Clicking it asks for confirmation right there in
+    the row. Once you confirm, the file is removed from the repo and the next deploy drops the page from the
+    site.
+</p>
+<p class="help__warning">
+    Deletes are permanent through the admin, but the file lives in git history forever — anyone with repo
+    access can restore it via the command line. If you delete something you didn't mean to, ask Tim.
+</p>
+</section>
+
+<hr />
+
+<section class="help__section">
+<h2>Common gotchas</h2>
+<dl class="help__dl">
+    <dt>"Save failed" with a network error</dt>
+    <dd>
+        Usually a token issue — sign out and back in with a fresh PAT. If the token's permissions changed
+        (e.g. you accidentally removed Contents: read &amp; write), the API rejects the commit.
+    </dd>
+
+    <dt>I edited something but the site still shows the old version</dt>
+    <dd>
+        Browsers cache pages aggressively. Use the <strong>View live</strong> button from the deploy banner —
+        it appends a cache-buster so you always see the fresh page. Or hold Shift while you reload.
+    </dd>
+
+    <dt>The home page hero text is wrong</dt>
+    <dd>
+        Edit <strong>Pages → index</strong>. The frontmatter's <em>title</em> is the big hero name and the
+        <em>subtitle</em> is the eyebrow above it. The body is the lede paragraph(s).
+    </dd>
+
+    <dt>I want to change the hero image</dt>
+    <dd>
+        Right now the hero image is hardcoded in the site's template. Tim is working on making it
+        editable from the admin in a future update. Until then, ping him with the new image and he'll swap it in.
+    </dd>
+
+    <dt>I want to embed a YouTube/Vimeo video on a music entry</dt>
+    <dd>
+        Paste the <em>embed</em> URL (not the regular share URL) into the <strong>Embed URL</strong> field.
+        For YouTube that's <code>https://www.youtube.com/embed/VIDEO_ID</code>.
+    </dd>
+</dl>
+</section>
+
+<hr />
+
+<section class="help__section">
+<h2>If something goes really wrong</h2>
+<p>
+    Open an issue on the
+    <a href="https://github.com/TimPurdum/elliotpurdum.github.io/issues" target="_blank" rel="noopener">repo</a>
+    with what you were doing and the error message. Tim will sort it out.
+</p>
+</section>
+
+</article>
