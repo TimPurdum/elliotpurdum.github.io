@@ -1175,6 +1175,10 @@ select.form-input { cursor: pointer; }
     .md-editor-host .toastui-editor-contents table {
         border-color: var(--color-accent-soft) !important;
     }
+    .md-editor-host .toastui-editor-contents th,
+    .md-editor-host .toastui-editor-contents td {
+        border-color: var(--color-accent-soft) !important;
+    }
     .md-editor-host .toastui-editor-contents th {
         background-color: var(--color-surface-alt) !important;
     }
