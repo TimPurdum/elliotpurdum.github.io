@@ -66,7 +66,7 @@ else
                            @oninput="@(e => _slug = e.Value?.ToString() ?? "")"
                            pattern="[a-z0-9][a-z0-9\-]*"
                            placeholder="@(_kind == ContentKind.Page ? "about" : "my-new-entry")"
-                           disabled="@_slugIsLocked" />
+                           disabled="@(_kind == ContentKind.Page && _slugIsLocked)" />
                 </FormRow>
             </div>
             @if (!string.IsNullOrEmpty(File) && WillRename)
