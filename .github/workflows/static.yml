@@ -2,6 +2,9 @@ name: Deploy static content to Pages
 
 env:
   PUBLISH_DIR: ElliotPurdum.com/bin/Release/net10.0/publish/wwwroot
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
 on:
   push:
@@ -38,25 +41,33 @@ jobs:
         with:
           dotnet-version: '10.x'
 
+      # Cache the NuGet package directory between runs. Saves ~30–60s of network restore on warm runs.
+      # Key is bound to every .csproj/.config so any dependency change invalidates the cache.
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/NuGet.Config') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Single restore covers Source, Compiler, public site, and admin. Subsequent dotnet
+      # build/publish commands run with --no-restore so they don't re-resolve packages.
+      - name: Restore
+        run: dotnet restore ElliotPurdum.com.slnx
+
       - name: Build Source Project
-        run: |
-          cd ElliotPurdum.com.Source
-          dotnet build -c Release
+        run: dotnet build ElliotPurdum.com.Source/ElliotPurdum.com.Source.csproj -c Release --no-restore
 
       - name: Generate Static Pages
-        run: |
-          cd BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler
-          dotnet run -c Release
+        working-directory: BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler
+        run: dotnet run -c Release --no-restore
 
-      - name: Publish app
-        run: |
-          cd ElliotPurdum.com
-          dotnet publish -c Release
+      - name: Publish public site
+        run: dotnet publish ElliotPurdum.com/ElliotPurdum.com.csproj -c Release --no-restore
 
       - name: Publish admin portal
-        run: |
-          cd ElliotPurdum.com.Admin
-          dotnet publish -c Release -o ../admin-publish
+        run: dotnet publish ElliotPurdum.com.Admin/ElliotPurdum.com.Admin.csproj -c Release --no-restore -o admin-publish
 
       - name: Stage admin under /admin
         run: |

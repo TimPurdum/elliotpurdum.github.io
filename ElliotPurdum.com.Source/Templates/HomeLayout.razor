@@ -12,9 +12,12 @@
             <div class="hero__lede">
                 @Content
             </div>
-            <figure class="hero__figure">
-                <img src="/images/hero/Dramatic Solo Cello Pose.jpg" alt="Elliot Purdum performing solo cello" loading="eager" />
-            </figure>
+            @if (!string.IsNullOrWhiteSpace(HeroImage))
+            {
+                <figure class="hero__figure">
+                    <img src="@HeroImage" alt="@(HeroImageAlt ?? string.Empty)" loading="eager" />
+                </figure>
+            }
         </div>
     </section>
 
@@ -140,4 +143,8 @@
     [Parameter] public List<MusicMetaData>? MusicEntries { get; set; }
     [Parameter] public List<ShowMetaData>? ShowEntries { get; set; }
     [Parameter] public List<GalleryMetaData>? GalleryEntries { get; set; }
+
+    // Frontmatter-driven via BlogGenerator's PascalCased ExtraFrontMatter forwarding.
+    [Parameter] public string? HeroImage { get; set; }
+    [Parameter] public string? HeroImageAlt { get; set; }
 }

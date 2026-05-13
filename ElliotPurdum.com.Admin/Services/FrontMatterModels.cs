@@ -78,5 +78,9 @@ public sealed class PageFrontMatter
     [YamlMember(Alias = "title")] public string Title { get; set; } = "";
     [YamlMember(Alias = "subtitle")] public string? Subtitle { get; set; }
     [YamlMember(Alias = "description")] public string? Description { get; set; }
+    /// <summary>Home-layout only — path to the hero figure image, e.g. /images/hero/foo.jpg.</summary>
+    [YamlMember(Alias = "heroImage")] public string? HeroImage { get; set; }
+    /// <summary>Home-layout only — alt text for the hero image.</summary>
+    [YamlMember(Alias = "heroImageAlt")] public string? HeroImageAlt { get; set; }
     [YamlMember(Alias = "lastmodified")] public string? Lastmodified { get; set; }
 }
