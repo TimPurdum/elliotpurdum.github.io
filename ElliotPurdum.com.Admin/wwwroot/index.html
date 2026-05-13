@@ -25,6 +25,7 @@
             } catch (e) { /* ignore */ }
         })();
     </script>
+    <link rel="stylesheet" href="css/toastui-editor.min.css" />
     <link rel="stylesheet" href="css/admin.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,16 +38,40 @@
         </div>
     </div>
     <noscript>This admin tool needs JavaScript enabled.</noscript>
-    <!-- Markdown preview rendering. Self-hosted (marked v15 — last release with marked.min.js UMD bundle). -->
-    <script src="js/marked.min.js"></script>
+    <!-- Toast UI Editor — self-hosted v3.2.2. Powers the WYSIWYG / markdown editor. -->
+    <script src="js/toastui-editor.min.js"></script>
     <script>
-        // Tiny wrapper so the editor can call this via IJSRuntime without depending on marked's ABI.
-        window.adminRenderMarkdown = function (text) {
-            try {
-                return (typeof marked === "undefined") ? "" : marked.parse(text || "");
-            } catch (e) {
-                return "<p><em>Preview error: " + (e && e.message ? e.message : "unknown") + "</em></p>";
-            }
+        // Wrapper that owns the editor lifecycle from the C# side. Returns a tiny handle the C#
+        // wrapper can call methods on (getMarkdown / setMarkdown / destroy). The change event
+        // notifies Blazor via the DotNetObjectReference passed in.
+        window.adminCreateRichEditor = function (element, initialValue, dotnetRef, options) {
+            options = options || {};
+            var editor = new toastui.Editor({
+                el: element,
+                initialValue: initialValue || "",
+                initialEditType: options.startMode || "wysiwyg",
+                previewStyle: "vertical",
+                height: options.height || "32rem",
+                usageStatistics: false,
+                toolbarItems: [
+                    ["heading", "bold", "italic", "strike"],
+                    ["hr", "quote"],
+                    ["ul", "ol", "task"],
+                    ["table", "image", "link"],
+                    ["code", "codeblock"]
+                ],
+                events: {
+                    change: function () {
+                        try { dotnetRef.invokeMethodAsync("OnEditorChanged", editor.getMarkdown()); }
+                        catch (e) { /* component disposed mid-edit; ignore */ }
+                    }
+                }
+            });
+            return {
+                getMarkdown: function () { return editor.getMarkdown(); },
+                setMarkdown: function (md) { editor.setMarkdown(md || "", false); },
+                destroy: function () { editor.destroy(); }
+            };
         };
 
         // Client-side image resize. Returns Uint8Array (JPEG-encoded) so the C# side can hand it

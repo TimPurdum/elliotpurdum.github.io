@@ -94,7 +94,7 @@ else
             {
                 <p class="form-row__hint">Lede paragraph(s) shown under the hero name. Plain markdown — no need to repeat the title or eyebrow.</p>
             }
-            <MarkdownEditor Value="@_body" ValueChanged="@(v => _body = v)" Rows="@(_kind == ContentKind.Gallery ? 10 : 22)" />
+            <MarkdownEditor Value="@_body" ValueChanged="@(v => _body = v)" Height="@(_kind == ContentKind.Gallery ? "18rem" : "32rem")" />
         </fieldset>
 
         @if (_saveError is not null)
