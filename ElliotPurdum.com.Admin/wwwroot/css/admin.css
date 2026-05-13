@@ -1050,6 +1050,103 @@ select.form-input { cursor: pointer; }
     background: var(--color-surface) !important;
 }
 
+/* Toast UI 3.x doesn't ship a dark theme, so we paint over its hard-coded light colors in dark mode.
+   Scoped to .md-editor-host so we don't leak overrides into any other Toast UI instance. */
+@media (prefers-color-scheme: dark) {
+    .md-editor-host .toastui-editor-defaultUI {
+        background: var(--color-surface) !important;
+        color: var(--color-text) !important;
+    }
+    .md-editor-host .toastui-editor-main,
+    .md-editor-host .toastui-editor-main-container,
+    .md-editor-host .toastui-editor-md-container,
+    .md-editor-host .toastui-editor-ww-container,
+    .md-editor-host .toastui-editor-md-preview {
+        background: var(--color-bg) !important;
+        color: var(--color-text) !important;
+    }
+    .md-editor-host .toastui-editor-md-splitter {
+        background: var(--color-accent-soft) !important;
+    }
+    /* Markdown source pane — actual editable content (ProseMirror node). */
+    .md-editor-host .toastui-editor-contents,
+    .md-editor-host .toastui-editor-md-mode .ProseMirror,
+    .md-editor-host .toastui-editor-ww-mode .ProseMirror {
+        background: var(--color-bg) !important;
+        color: var(--color-text) !important;
+        caret-color: var(--color-accent);
+    }
+    /* Markdown syntax highlighting — Toast UI's md-* classes have hard-coded near-black text. */
+    .md-editor-host .toastui-editor-md-heading,
+    .md-editor-host .toastui-editor-md-link,
+    .md-editor-host .toastui-editor-md-link-desc,
+    .md-editor-host .toastui-editor-md-link-url,
+    .md-editor-host .toastui-editor-md-list-item-style,
+    .md-editor-host .toastui-editor-md-delimiter,
+    .md-editor-host .toastui-editor-md-meta,
+    .md-editor-host .toastui-editor-md-marked-text,
+    .md-editor-host .toastui-editor-md-block-quote,
+    .md-editor-host .toastui-editor-md-table,
+    .md-editor-host .toastui-editor-md-table-cell,
+    .md-editor-host .toastui-editor-md-thematic-break,
+    .md-editor-host .toastui-editor-md-html,
+    .md-editor-host .toastui-editor-md-emph,
+    .md-editor-host .toastui-editor-md-list-item {
+        color: var(--color-text) !important;
+    }
+    .md-editor-host .toastui-editor-md-code,
+    .md-editor-host .toastui-editor-md-code-block {
+        color: var(--color-accent) !important;
+    }
+    /* Code-block backdrop in the markdown pane. */
+    .md-editor-host .toastui-editor-md-code-block-line-background,
+    .md-editor-host .toastui-editor-md-custom-block-line-background {
+        background: var(--color-surface-alt) !important;
+    }
+    /* Toolbar buttons. */
+    .md-editor-host .toastui-editor-toolbar-icons {
+        filter: invert(0.85) hue-rotate(180deg);
+    }
+    .md-editor-host .toastui-editor-toolbar-divider {
+        background: var(--color-accent-soft) !important;
+    }
+    /* Mode-switch tabs at the bottom. */
+    .md-editor-host .toastui-editor-mode-switch .tab-item {
+        background: var(--color-surface) !important;
+        color: var(--color-muted) !important;
+        border-color: var(--color-accent-soft) !important;
+    }
+    .md-editor-host .toastui-editor-mode-switch .tab-item.active {
+        background: var(--color-bg) !important;
+        color: var(--color-text) !important;
+        border-top: 2px solid var(--color-accent) !important;
+    }
+    /* Popups (image / link / heading dialogs). */
+    .md-editor-host .toastui-editor-popup,
+    .md-editor-host .toastui-editor-popup-body,
+    .md-editor-host .toastui-editor-dropdown-toolbar {
+        background: var(--color-surface) !important;
+        color: var(--color-text) !important;
+        border-color: var(--color-accent-soft) !important;
+    }
+    .md-editor-host .toastui-editor-popup input[type="text"],
+    .md-editor-host .toastui-editor-popup textarea {
+        background: var(--color-bg) !important;
+        color: var(--color-text) !important;
+        border: 1px solid var(--color-accent-soft) !important;
+    }
+    /* Preview pane (right side in vertical split). */
+    .md-editor-host .toastui-editor-md-preview .toastui-editor-contents {
+        background: var(--color-bg) !important;
+        color: var(--color-text) !important;
+    }
+    .md-editor-host .toastui-editor-md-preview pre,
+    .md-editor-host .toastui-editor-md-preview code {
+        background: var(--color-surface-alt) !important;
+        color: var(--color-text) !important;
+    }
+}
+
 /* --- image list (gallery editor) -------------------------- */
 
 .image-list {
