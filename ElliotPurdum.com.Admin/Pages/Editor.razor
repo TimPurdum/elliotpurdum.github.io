@@ -36,41 +36,47 @@ else if (_error is not null)
 else
 {
     <form class="editor" @onsubmit="SaveAsync" @onsubmit:preventDefault="true">
-        @* File-naming inputs: only relevant on /new — on edit the filename is already known. *@
-        @if (string.IsNullOrEmpty(File))
-        {
-            <fieldset class="editor-fieldset">
-                <legend class="editor-fieldset__legend">File</legend>
-                <div class="form-grid">
-                    @if (_kind != ContentKind.Page)
-                    {
-                        <FormRow Label="Date" Required="true" For="entry-date"
-                                 Hint="@(_kind == ContentKind.Gallery ? "Approximate month — used for sort order." : (_kind == ContentKind.Show ? "Performance date — embedded in the URL." : "Date used in the filename and (for posts) in the URL."))">
-                            @if (_kind == ContentKind.Gallery)
-                            {
-                                <input id="entry-date" class="form-input" type="month" required
-                                       value="@_dateMonth"
-                                       @oninput="@(e => _dateMonth = e.Value?.ToString() ?? "")" />
-                            }
-                            else
-                            {
-                                <input id="entry-date" class="form-input" type="date" required
-                                       value="@_dateFull"
-                                       @oninput="@(e => _dateFull = e.Value?.ToString() ?? "")" />
-                            }
-                        </FormRow>
-                    }
-                    <FormRow Label="Slug" Required="true" For="entry-slug"
-                             Hint="@(_kind == ContentKind.Page ? "Becomes the filename and URL — e.g. 'about' renders at /about.html, 'index' renders at /." : "lowercase-with-hyphens. Becomes the filename and (for music/gallery) the URL.")">
-                        <input id="entry-slug" class="form-input" type="text" required
-                               value="@_slug"
-                               @oninput="@(e => _slug = e.Value?.ToString() ?? "")"
-                               pattern="[a-z0-9][a-z0-9\-]*"
-                               placeholder="@(_kind == ContentKind.Page ? "about" : "my-new-entry")" />
+        @* File-naming inputs. On /new these are blank; on edit they're pre-filled from the existing
+           filename so the user can change date + slug to rename in place. *@
+        <fieldset class="editor-fieldset">
+            <legend class="editor-fieldset__legend">File</legend>
+            <div class="form-grid">
+                @if (_kind != ContentKind.Page)
+                {
+                    <FormRow Label="Date" Required="true" For="entry-date"
+                             Hint="@(_kind == ContentKind.Gallery ? "Approximate month — used for sort order." : (_kind == ContentKind.Show ? "Performance date — embedded in the URL." : "Date used in the filename and (for posts) in the URL."))">
+                        @if (_kind == ContentKind.Gallery)
+                        {
+                            <input id="entry-date" class="form-input" type="month" required
+                                   value="@_dateMonth"
+                                   @oninput="@(e => _dateMonth = e.Value?.ToString() ?? "")" />
+                        }
+                        else
+                        {
+                            <input id="entry-date" class="form-input" type="date" required
+                                   value="@_dateFull"
+                                   @oninput="@(e => _dateFull = e.Value?.ToString() ?? "")" />
+                        }
                     </FormRow>
-                </div>
-            </fieldset>
-        }
+                }
+                <FormRow Label="Slug" Required="true" For="entry-slug"
+                         Hint="@SlugHint">
+                    <input id="entry-slug" class="form-input" type="text" required
+                           value="@_slug"
+                           @oninput="@(e => _slug = e.Value?.ToString() ?? "")"
+                           pattern="[a-z0-9][a-z0-9\-]*"
+                           placeholder="@(_kind == ContentKind.Page ? "about" : "my-new-entry")"
+                           disabled="@_slugIsLocked" />
+                </FormRow>
+            </div>
+            @if (!string.IsNullOrEmpty(File) && WillRename)
+            {
+                <p class="form-row__hint" style="margin-top: 0.5rem;">
+                    Saving will rename: <code class="path">@OriginalFileName</code> &rarr; <code class="path">@BuildNewFileName()</code>.
+                    The old URL stops working after the next deploy — there is no redirect.
+                </p>
+            }
+        </fieldset>
 
         <fieldset class="editor-fieldset">
             <legend class="editor-fieldset__legend">Frontmatter</legend>
@@ -132,10 +138,38 @@ else
     private string _body = "";
     private string? _existingSha;     // null on /new
 
-    // Filename inputs (new mode only).
+    // Filename inputs. On /new these start fresh; on edit they're pre-filled from the existing filename.
     private string _dateFull = DateTime.Today.ToString("yyyy-MM-dd");   // YYYY-MM-DD for posts/music/shows
     private string _dateMonth = DateTime.Today.ToString("yyyy-MM");      // YYYY-MM for gallery
     private string _slug = "";
+
+    /// <summary>The filename loaded from disk on edit — used to detect rename intent on Save.</summary>
+    private string OriginalFileName => string.IsNullOrEmpty(File) ? "" : Uri.UnescapeDataString(File);
+
+    /// <summary>True when the user changed date or slug on an existing entry, so Save needs to PUT+DELETE.
+    /// Returns false while the slug input is empty (BuildNewFileName would throw); the form's `required`
+    /// attribute on the slug field blocks submission in that state anyway.</summary>
+    private bool WillRename
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(File)) return false;
+            if (string.IsNullOrWhiteSpace(_slug)) return false;
+            return !string.Equals(BuildNewFileName(), OriginalFileName, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    /// <summary>The home page can't be renamed — its URL is hardcoded into NavMenu and the Blazor router.</summary>
+    private bool _slugIsLocked;
+
+    private string SlugHint => _kind switch
+    {
+        ContentKind.Page when _slugIsLocked
+            => "The home page slug is locked — `index` renders at /, and renaming it would break navigation.",
+        ContentKind.Page
+            => "Becomes the filename and URL — e.g. 'about' renders at /about.html.",
+        _   => "lowercase-with-hyphens. Becomes the filename and (for music/gallery) the URL."
+    };
 
     private string PageTitleText =>
         string.IsNullOrEmpty(File)
@@ -182,6 +216,7 @@ else
             }
             _existingSha = repoFile.Sha;
             ParseFromText(repoFile.Text);
+            PrefillFilenameInputs(decoded);
         }
         catch (Exception ex)
         {
@@ -190,6 +225,34 @@ else
         finally
         {
             _loading = false;
+        }
+    }
+
+    /// <summary>Populate the File fieldset (date + slug) from the existing filename so the user can edit
+    /// either piece to rename. Mirrors the format BuildNewFileName produces.</summary>
+    private void PrefillFilenameInputs(string fileName)
+    {
+        string baseName = StripExtension(fileName);
+        switch (_kind)
+        {
+            case ContentKind.Gallery when TryParseYearMonth(baseName, out int y, out int m, out string slug):
+                _dateMonth = $"{y:D4}-{m:D2}";
+                _slug = slug;
+                break;
+            case ContentKind.Post or ContentKind.Music or ContentKind.Show
+                when TryParseDated(baseName, out int y, out int m, out int d, out string slug):
+                _dateFull = $"{y:D4}-{m:D2}-{d:D2}";
+                _slug = slug;
+                break;
+            case ContentKind.Page:
+                _slug = baseName;
+                _slugIsLocked = string.Equals(baseName, "index", StringComparison.OrdinalIgnoreCase);
+                break;
+            default:
+                // Fallback for files that don't match the expected naming pattern — leave the
+                // slug box editable so the user can correct it.
+                _slug = baseName;
+                break;
         }
     }
 
@@ -234,20 +297,40 @@ else
                 _ => throw new InvalidOperationException()
             };
 
-            string fileName = string.IsNullOrEmpty(File)
-                ? BuildNewFileName()
-                : Uri.UnescapeDataString(File);
+            bool isNew = string.IsNullOrEmpty(File);
+            string newFileName = BuildNewFileName();
+            string newPath = $"{ContentDirectory(_kind.Value)}/{newFileName}";
 
-            string path = $"{ContentDirectory(_kind.Value)}/{fileName}";
-            string commitMessage = string.IsNullOrEmpty(File)
-                ? $"admin: create {TypeSlug} entry {StripExtension(fileName)}"
-                : $"admin: update {TypeSlug} entry {StripExtension(fileName)}";
+            RepoCommitResult result;
+            string? viewLive = BuildViewLiveUrl(_kind.Value, newFileName);
 
-            RepoCommitResult result = await Api.PutTextFileAsync(path, fileText, commitMessage, _existingSha);
+            if (isNew)
+            {
+                string commitMessage = $"admin: create {TypeSlug} entry {StripExtension(newFileName)}";
+                result = await Api.PutTextFileAsync(newPath, fileText, commitMessage);
+            }
+            else if (WillRename)
+            {
+                // Two-phase rename: write content at the new path (no sha, since it's a new file there),
+                // then delete the old path using its existing sha. Each step is its own commit — GitHub's
+                // Contents API has no atomic rename. If the DELETE fails after the PUT succeeds, content
+                // sits at both paths and the user will see the rename only partially applied. We surface
+                // the error; the user can re-Save to retry the delete.
+                string oldPath = $"{ContentDirectory(_kind.Value)}/{OriginalFileName}";
+                string slugForCommit = StripExtension(newFileName);
+                string putMessage = $"admin: rename {TypeSlug} entry to {slugForCommit}";
+                result = await Api.PutTextFileAsync(newPath, fileText, putMessage);
+
+                string deleteMessage = $"admin: delete {TypeSlug} entry {StripExtension(OriginalFileName)} (renamed to {slugForCommit})";
+                await Api.DeleteFileAsync(oldPath, _existingSha!, deleteMessage);
+            }
+            else
+            {
+                string commitMessage = $"admin: update {TypeSlug} entry {StripExtension(newFileName)}";
+                result = await Api.PutTextFileAsync(newPath, fileText, commitMessage, _existingSha);
+            }
 
             // Track the deploy so the user sees a banner update as the commit moves through CI.
-            // ViewLiveUrl is computed from filename + content type.
-            string? viewLive = BuildViewLiveUrl(_kind.Value, fileName);
             if (!string.IsNullOrEmpty(result.CommitSha))
             {
                 Deploy.Track(result.CommitSha, viewLive);
