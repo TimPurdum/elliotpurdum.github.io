@@ -28,8 +28,19 @@
                 <li class="image-list__item">
                     <span class="image-list__index">@(index + 1)</span>
                     <div class="image-list__fields">
-                        <FormRow Label="Image src" For="@($"img-src-{index}")" Hint="Path under /images/, e.g. /images/gallery/foo.jpg">
-                            <input id="@($"img-src-{index}")" class="form-input" type="text" @bind="image.Src" />
+                        <FormRow Label="Image src" For="@($"img-src-{index}")" Hint="Pick or upload, or paste a path under /images/.">
+                            <div class="form-input-with-picker">
+                                <input id="@($"img-src-{index}")" class="form-input" type="text" @bind="image.Src" />
+                                <ImagePicker DefaultFolder="gallery"
+                                             OnPicked="@(url => image.Src = url)"
+                                             ButtonLabel="Pick / upload" />
+                                @if (!string.IsNullOrWhiteSpace(image.Src))
+                                {
+                                    <figure class="form-input__preview">
+                                        <img src="@image.Src" alt="" loading="lazy" />
+                                    </figure>
+                                }
+                            </div>
                         </FormRow>
                         <FormRow Label="Caption" For="@($"img-caption-{index}")">
                             <input id="@($"img-caption-{index}")" class="form-input" type="text" @bind="image.Caption" />
