@@ -38,8 +38,9 @@
         </div>
     </div>
     <noscript>This admin tool needs JavaScript enabled.</noscript>
-    <!-- Toast UI Editor — self-hosted v3.2.2. Powers the WYSIWYG / markdown editor. -->
-    <script src="js/toastui-editor.min.js"></script>
+    <!-- Toast UI Editor — self-hosted v3.2.2 (the "-all" bundle, which inlines ProseMirror et al;
+         the slimmer toastui-editor.min.js expects those as separate <script> tags and dies otherwise). -->
+    <script src="js/toastui-editor-all.min.js"></script>
     <script>
         // Wrapper that owns the editor lifecycle from the C# side. Returns a tiny handle the C#
         // wrapper can call methods on (getMarkdown / setMarkdown / destroy). The change event
