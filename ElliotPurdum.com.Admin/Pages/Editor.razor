@@ -1,33 +1,277 @@
 @page "/{TypeSlug}/new"
 @page "/{TypeSlug}/edit/{File}"
+@inject GitHubApiService Api
+@inject NavigationManager Nav
 
-<PageTitle>@(string.IsNullOrEmpty(File) ? "New" : "Edit") @TypeSlug — admin</PageTitle>
+<PageTitle>@PageTitleText — admin</PageTitle>
 
 <header class="page-heading">
-    <h1>@(string.IsNullOrEmpty(File) ? "New" : "Edit") @TypeSlug</h1>
-    <p class="page-heading__lede">Editor lands in the next admin slice (P3.3).</p>
+    <div class="page-heading__row">
+        <h1>@PageTitleText</h1>
+        <a class="admin-button admin-button--ghost" href="/admin/@TypeSlug">&larr; Back to @TypeSlug</a>
+    </div>
+    @if (!string.IsNullOrEmpty(File))
+    {
+        <p class="page-heading__lede">Editing <code class="path">@File</code></p>
+    }
 </header>
 
-<div class="alert">
-    <p>
+@if (_kind is null)
+{
+    <div class="alert alert--error" role="alert">
+        <p><strong>Unknown content type.</strong> <code>@TypeSlug</code> is not one of <code>posts</code>, <code>music</code>, <code>shows</code>, or <code>gallery</code>.</p>
+    </div>
+}
+else if (_loading)
+{
+    <p class="empty">Loading…</p>
+}
+else if (_error is not null)
+{
+    <div class="alert alert--error" role="alert">
+        <p><strong>Couldn't load file.</strong> @_error</p>
+    </div>
+}
+else
+{
+    <form class="editor" @onsubmit="SaveAsync" @onsubmit:preventDefault="true">
+        @* File-naming inputs: only relevant on /new — on edit the filename is already known. *@
         @if (string.IsNullOrEmpty(File))
         {
-            <span>You'd be creating a new <strong>@TypeSlug</strong> entry here.</span>
+            <fieldset class="editor-fieldset">
+                <legend class="editor-fieldset__legend">File</legend>
+                <div class="form-grid">
+                    <FormRow Label="Date" Required="true" For="entry-date"
+                             Hint="@(_kind == ContentKind.Gallery ? "Approximate month — used for sort order." : (_kind == ContentKind.Show ? "Performance date — embedded in the URL." : "Date used in the filename and (for posts) in the URL."))">
+                        @if (_kind == ContentKind.Gallery)
+                        {
+                            <input id="entry-date" class="form-input" type="month" required
+                                   value="@_dateMonth"
+                                   @oninput="@(e => _dateMonth = e.Value?.ToString() ?? "")" />
+                        }
+                        else
+                        {
+                            <input id="entry-date" class="form-input" type="date" required
+                                   value="@_dateFull"
+                                   @oninput="@(e => _dateFull = e.Value?.ToString() ?? "")" />
+                        }
+                    </FormRow>
+                    <FormRow Label="Slug" Required="true" For="entry-slug"
+                             Hint="lowercase-with-hyphens. Becomes the filename and (for music/gallery) the URL.">
+                        <input id="entry-slug" class="form-input" type="text" required
+                               value="@_slug"
+                               @oninput="@(e => _slug = e.Value?.ToString() ?? "")"
+                               pattern="[a-z0-9][a-z0-9\-]*"
+                               placeholder="my-new-entry" />
+                    </FormRow>
+                </div>
+            </fieldset>
         }
-        else
+
+        <fieldset class="editor-fieldset">
+            <legend class="editor-fieldset__legend">Frontmatter</legend>
+            @switch (_kind)
+            {
+                case ContentKind.Post:    <PostEditorForm    Frontmatter="_postFront"    /> ; break;
+                case ContentKind.Music:   <MusicEditorForm   Frontmatter="_musicFront"   /> ; break;
+                case ContentKind.Show:    <ShowEditorForm    Frontmatter="_showFront"    /> ; break;
+                case ContentKind.Gallery: <GalleryEditorForm Frontmatter="_galleryFront" /> ; break;
+            }
+        </fieldset>
+
+        <fieldset class="editor-fieldset">
+            <legend class="editor-fieldset__legend">@(_kind == ContentKind.Gallery ? "Notes" : "Body")</legend>
+            @if (_kind == ContentKind.Gallery)
+            {
+                <p class="form-row__hint">Optional prose shown below the photo grid.</p>
+            }
+            <MarkdownEditor Value="@_body" ValueChanged="@(v => _body = v)" Rows="@(_kind == ContentKind.Gallery ? 10 : 22)" />
+        </fieldset>
+
+        @if (_saveError is not null)
         {
-            <span>You'd be editing <code>@File</code> here.</span>
+            <div class="alert alert--error" role="alert">
+                <p><strong>Save failed.</strong> @_saveError</p>
+            </div>
         }
-        For now, content edits still happen by hand in markdown files under
-        <code>ElliotPurdum.com.Source/Content/@(ToTitle(TypeSlug))/</code>.
-    </p>
-    <a class="admin-button admin-button--ghost" href="/admin/@TypeSlug">&larr; Back to @TypeSlug</a>
-</div>
+
+        <div class="editor-actions">
+            <button class="admin-button" type="submit" disabled="@_saving">@(_saving ? "Saving…" : "Save")</button>
+            <a class="admin-button admin-button--ghost" href="/admin/@TypeSlug">Cancel</a>
+        </div>
+    </form>
+}
 
 @code {
     [Parameter] public string? TypeSlug { get; set; }
     [Parameter] public string? File { get; set; }
 
-    private static string ToTitle(string? slug)
-        => string.IsNullOrEmpty(slug) ? "" : char.ToUpperInvariant(slug[0]) + slug[1..];
+    private ContentKind? _kind;
+    private bool _loading = true;
+    private string? _error;
+
+    private bool _saving;
+    private string? _saveError;
+
+    // Frontmatter state — only one is populated per request, based on _kind.
+    private PostFrontMatter _postFront = new();
+    private MusicFrontMatter _musicFront = new();
+    private ShowFrontMatter _showFront = new();
+    private GalleryFrontMatter _galleryFront = new();
+
+    private string _body = "";
+    private string? _existingSha;     // null on /new
+
+    // Filename inputs (new mode only).
+    private string _dateFull = DateTime.Today.ToString("yyyy-MM-dd");   // YYYY-MM-DD for posts/music/shows
+    private string _dateMonth = DateTime.Today.ToString("yyyy-MM");      // YYYY-MM for gallery
+    private string _slug = "";
+
+    private string PageTitleText =>
+        string.IsNullOrEmpty(File)
+            ? $"New {SingularNoun(_kind)}"
+            : $"Edit {SingularNoun(_kind)}";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _kind = TypeSlug switch
+        {
+            "posts"   => ContentKind.Post,
+            "music"   => ContentKind.Music,
+            "shows"   => ContentKind.Show,
+            "gallery" => ContentKind.Gallery,
+            _ => null
+        };
+        if (_kind is null) { _loading = false; return; }
+
+        if (string.IsNullOrEmpty(File))
+        {
+            _loading = false;
+            return;
+        }
+
+        _loading = true;
+        _error = null;
+        try
+        {
+            string decoded = Uri.UnescapeDataString(File);
+            string path = $"{ContentDirectory(_kind.Value)}/{decoded}";
+            RepoFile? repoFile = await Api.GetFileAsync(path);
+            if (repoFile is null)
+            {
+                _error = $"File '{decoded}' not found in {ContentDirectory(_kind.Value)}.";
+                return;
+            }
+            _existingSha = repoFile.Sha;
+            ParseFromText(repoFile.Text);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void ParseFromText(string text)
+    {
+        switch (_kind)
+        {
+            case ContentKind.Post:
+                (_postFront, _body) = MarkdownDocument.Parse<PostFrontMatter>(text);
+                break;
+            case ContentKind.Music:
+                (_musicFront, _body) = MarkdownDocument.Parse<MusicFrontMatter>(text);
+                break;
+            case ContentKind.Show:
+                (_showFront, _body) = MarkdownDocument.Parse<ShowFrontMatter>(text);
+                break;
+            case ContentKind.Gallery:
+                (_galleryFront, _body) = MarkdownDocument.Parse<GalleryFrontMatter>(text);
+                break;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_kind is null) return;
+        _saving = true;
+        _saveError = null;
+        try
+        {
+            // Stamp lastmodified so BlogGenerator's regen heuristic notices the edit.
+            string nowStamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+            string fileText = _kind switch
+            {
+                ContentKind.Post    => StampAndBuild(_postFront,    pf => pf.Lastmodified = nowStamp),
+                ContentKind.Music   => StampAndBuild(_musicFront,   mf => mf.Lastmodified = nowStamp),
+                ContentKind.Show    => StampAndBuild(_showFront,    sf => sf.Lastmodified = nowStamp),
+                ContentKind.Gallery => StampAndBuild(_galleryFront, gf => gf.Lastmodified = nowStamp),
+                _ => throw new InvalidOperationException()
+            };
+
+            string fileName = string.IsNullOrEmpty(File)
+                ? BuildNewFileName()
+                : Uri.UnescapeDataString(File);
+
+            string path = $"{ContentDirectory(_kind.Value)}/{fileName}";
+            string commitMessage = string.IsNullOrEmpty(File)
+                ? $"admin: create {TypeSlug} entry {StripExtension(fileName)}"
+                : $"admin: update {TypeSlug} entry {StripExtension(fileName)}";
+
+            await Api.PutTextFileAsync(path, fileText, commitMessage, _existingSha);
+
+            Nav.NavigateTo($"/admin/{TypeSlug}");
+        }
+        catch (Exception ex)
+        {
+            _saveError = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private string BuildNewFileName()
+    {
+        if (string.IsNullOrWhiteSpace(_slug)) throw new InvalidOperationException("Slug is required.");
+        string slug = _slug.Trim().ToLowerInvariant();
+        return _kind switch
+        {
+            ContentKind.Gallery => $"{_dateMonth}-{slug}.md",
+            _                   => $"{_dateFull}-{slug}.md"
+        };
+    }
+
+    private static string ContentDirectory(ContentKind kind) => kind switch
+    {
+        ContentKind.Post    => "ElliotPurdum.com.Source/Content/Posts",
+        ContentKind.Music   => "ElliotPurdum.com.Source/Content/Music",
+        ContentKind.Show    => "ElliotPurdum.com.Source/Content/Shows",
+        ContentKind.Gallery => "ElliotPurdum.com.Source/Content/Gallery",
+        _ => throw new InvalidOperationException()
+    };
+
+    private string StampAndBuild<TFront>(TFront fm, Action<TFront> stamp) where TFront : new()
+    {
+        stamp(fm);
+        return MarkdownDocument.Build(fm, _body);
+    }
+
+    private static string StripExtension(string fileName) =>
+        fileName.EndsWith(".md", StringComparison.OrdinalIgnoreCase) ? fileName[..^3] : fileName;
+
+    private static string SingularNoun(ContentKind? kind) => kind switch
+    {
+        ContentKind.Post    => "post",
+        ContentKind.Music   => "music entry",
+        ContentKind.Show    => "show",
+        ContentKind.Gallery => "gallery",
+        _ => "entry"
+    };
+
+    public enum ContentKind { Post, Music, Show, Gallery }
 }

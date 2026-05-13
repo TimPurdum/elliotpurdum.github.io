@@ -1,0 +1,42 @@
+@* Music portfolio entry form. *@
+
+<div class="form-grid">
+    <FormRow Label="Title" Required="true" For="music-title">
+        <input id="music-title" class="form-input" type="text" required @bind="Frontmatter.Title" />
+    </FormRow>
+    <FormRow Label="Type" For="music-type">
+        <select id="music-type" class="form-input" @bind="Frontmatter.Type">
+            <option value="performance">Performance</option>
+            <option value="recording">Recording</option>
+            <option value="composition">Composition</option>
+        </select>
+    </FormRow>
+    <FormRow Label="Role" For="music-role">
+        <select id="music-role" class="form-input" @bind="Frontmatter.Role">
+            <option value="">— pick one —</option>
+            <option value="soloist">Soloist</option>
+            <option value="principal">Principal</option>
+            <option value="section">Section</option>
+            <option value="conductor">Conductor</option>
+        </select>
+    </FormRow>
+    <FormRow Label="Ensemble" For="music-ensemble">
+        <input id="music-ensemble" class="form-input" type="text" @bind="Frontmatter.Ensemble" />
+    </FormRow>
+    <FormRow Label="Venue" For="music-venue">
+        <input id="music-venue" class="form-input" type="text" @bind="Frontmatter.Venue" />
+    </FormRow>
+    <FormRow Label="Embed URL" Hint="YouTube, Vimeo, SoundCloud — paste the iframe-ready URL." For="music-embed">
+        <input id="music-embed" class="form-input" type="url" @bind="Frontmatter.EmbedUrl" placeholder="https://youtube.com/embed/…" />
+    </FormRow>
+    <FormRow Label="Cover image" Hint="Path to an image in /images/ — image manager arrives in P3.4." For="music-cover">
+        <input id="music-cover" class="form-input" type="text" @bind="Frontmatter.CoverImage" placeholder="/images/music/something.jpg" />
+    </FormRow>
+    <FormRow Label="Description" Hint="Optional, shown under title and on the music landing card." For="music-description">
+        <textarea id="music-description" class="form-input" rows="3" @bind="Frontmatter.Description"></textarea>
+    </FormRow>
+</div>
+
+@code {
+    [Parameter] public required MusicFrontMatter Frontmatter { get; set; }
+}

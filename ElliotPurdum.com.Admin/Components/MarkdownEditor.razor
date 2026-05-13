@@ -1,0 +1,81 @@
+@inject IJSRuntime JS
+@implements IDisposable
+
+<div class="md-editor">
+    <div class="md-editor__panel md-editor__panel--source">
+        <label class="md-editor__label" for="@_textareaId">Body</label>
+        <textarea id="@_textareaId"
+                  class="md-editor__source"
+                  value="@Value"
+                  spellcheck="true"
+                  @oninput="OnInput"
+                  rows="@Rows"
+                  placeholder="Write in markdown — headings with #, bold with **, lists with -…"></textarea>
+    </div>
+    <div class="md-editor__panel md-editor__panel--preview">
+        <span class="md-editor__label">Preview</span>
+        <div class="md-editor__preview md-preview">
+            @if (string.IsNullOrWhiteSpace(_previewHtml))
+            {
+                <p class="md-editor__empty">Preview appears here as you type.</p>
+            }
+            else
+            {
+                @((MarkupString)_previewHtml)
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public int Rows { get; set; } = 22;
+
+    private readonly string _textareaId = $"md-editor-{Guid.NewGuid():N}";
+    private string _previewHtml = "";
+    private CancellationTokenSource? _debounceCts;
+    private string _lastRendered = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Value != _lastRendered)
+        {
+            _lastRendered = Value;
+            await UpdatePreviewAsync(Value);
+        }
+    }
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        string newValue = e.Value?.ToString() ?? "";
+        await ValueChanged.InvokeAsync(newValue);
+
+        // Debounce preview rendering — re-running marked.js on every keystroke for a long post is wasteful.
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+        CancellationToken token = _debounceCts.Token;
+        try
+        {
+            await Task.Delay(180, token);
+            _lastRendered = newValue;
+            await UpdatePreviewAsync(newValue);
+            StateHasChanged();
+        }
+        catch (TaskCanceledException) { /* superseded by a newer keystroke */ }
+    }
+
+    private async Task UpdatePreviewAsync(string text)
+    {
+        try
+        {
+            _previewHtml = await JS.InvokeAsync<string>("adminRenderMarkdown", text);
+        }
+        catch
+        {
+            _previewHtml = "<p><em>Preview unavailable.</em></p>";
+        }
+    }
+
+    public void Dispose() => _debounceCts?.Cancel();
+}
