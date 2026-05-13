@@ -68,10 +68,10 @@ jobs:
         working-directory: BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler
         run: dotnet run -c Release --no-restore
 
-      # AOT bumps the bundle size significantly (Tim flagged this in CLAUDE.md). Off by default; opt in
-      # via the workflow_dispatch input. github.event.inputs.aot is the string "true" or "false"
-      # on workflow_dispatch, and an empty string on push events, so the expression safely collapses
-      # to no extra flag for regular pushes.
+      # AOT increases the published bundle size significantly, so it remains off by default and is
+      # enabled only via the workflow_dispatch input. github.event.inputs.aot is the string "true"
+      # or "false" on workflow_dispatch, and an empty string on push events, so the expression
+      # safely collapses to no extra flag for regular pushes.
       - name: Publish public site
         run: dotnet publish ElliotPurdum.com/ElliotPurdum.com.csproj -c Release --no-restore${{ github.event.inputs.aot == 'true' && ' /p:RunAOT=true' || '' }}
 
