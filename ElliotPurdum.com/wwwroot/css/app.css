@@ -1195,6 +1195,31 @@ a:hover {
     color: var(--color-muted);
     letter-spacing: 0.04em;
 }
+.site-footer__social {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    letter-spacing: 0.02em;
+    margin: 0.1rem 0 0.2rem;
+}
+/* Override the default site-wide gold-underline link treatment for these — the centered footer
+   row reads cleaner as plain muted text with the underline appearing on hover only. */
+.site-footer__social-link {
+    background-image: none;
+    padding-bottom: 0;
+    color: var(--color-muted);
+    transition: color 200ms ease;
+}
+.site-footer__social-link:hover,
+.site-footer__social-link:focus-visible {
+    color: var(--color-accent);
+}
+.site-footer__social-sep {
+    color: var(--color-accent-soft);
+    line-height: 1;
+}
 
 /* --- animations ------------------------------------------- */
 
