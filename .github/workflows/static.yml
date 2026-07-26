@@ -80,12 +80,17 @@ jobs:
       # admin untouched. Cache the publish output keyed on the admin source tree plus dependency
       # and tooling inputs so changes to NuGet feeds or SDK selection also invalidate the cache.
       # Saves ~the full WASM publish step (~30–60s on a cold runner) on every content-only commit.
+      #
+      # The key must cover BOTH halves of what the bundle is built from: this site's shell AND the
+      # BlogGenerator.Admin RCL in the submodule. Since the admin moved to the RCL, the shell is a
+      # thin Program.cs plus a few forms, and almost all of the real UI lives in the submodule — so
+      # hashing only the shell would serve a stale admin on exactly the changes that matter most.
       - name: Cache admin publish output
         id: admin-cache
         uses: actions/cache@v4
         with:
           path: admin-publish/wwwroot
-          key: admin-publish-${{ runner.os }}-dotnet-10.x-${{ hashFiles('ElliotPurdum.com.Admin/**', '!ElliotPurdum.com.Admin/bin/**', '!ElliotPurdum.com.Admin/obj/**', '**/NuGet.Config', 'global.json') }}
+          key: admin-publish-${{ runner.os }}-dotnet-10.x-${{ hashFiles('ElliotPurdum.com.Admin/**', '!ElliotPurdum.com.Admin/bin/**', '!ElliotPurdum.com.Admin/obj/**', 'BlogGenerator/TimPurdum.Dev.BlogGenerator.Admin/**', '!BlogGenerator/TimPurdum.Dev.BlogGenerator.Admin/bin/**', '!BlogGenerator/TimPurdum.Dev.BlogGenerator.Admin/obj/**', '**/NuGet.Config', 'global.json') }}
 
       - name: Publish admin portal
         if: steps.admin-cache.outputs.cache-hit != 'true'
