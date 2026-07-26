@@ -3,6 +3,7 @@
     <Project Path="BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler/TimPurdum.Dev.BlogGenerator.Compiler.csproj" />
     <Project Path="BlogGenerator/TimPurdum.Dev.BlogGenerator.Shared/TimPurdum.Dev.BlogGenerator.Shared.csproj" />
     <Project Path="BlogGenerator/TimPurdum.Dev.BlogGenerator/TimPurdum.Dev.BlogGenerator.csproj" />
+    <Project Path="BlogGenerator/TimPurdum.Dev.BlogGenerator.Admin/TimPurdum.Dev.BlogGenerator.Admin.csproj" />
   </Folder>
   <Folder Name="/BlogGenerator/markdig/" />
   <Folder Name="/BlogGenerator/markdig/src/">

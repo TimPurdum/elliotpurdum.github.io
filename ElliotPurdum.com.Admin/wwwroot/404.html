@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex,nofollow" />
     <title>Admin — Elliot Purdum</title>
-    <!-- SPA fallback: GitHub Pages serves this file for any /admin/* path that doesn't match a real file.
-         Blazor reads window.location.pathname after boot and routes to the right page. Same content as index.html. -->
+    <!-- Fallback for hosts that resolve a nested 404 (and for local `dotnet run`). GitHub Pages
+         does not — it only ever serves the site-level /404.html, which stashes the requested path
+         and bounces to /admin/. Same <base href> as index.html so assets resolve identically. -->
     <base href="/admin/" />
-    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="stylesheet" href="_content/TimPurdum.Dev.BlogGenerator.Admin/css/admin.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Source+Sans+3:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -20,6 +21,8 @@
         </div>
     </div>
     <noscript>This admin tool needs JavaScript enabled.</noscript>
+    <script src="_content/TimPurdum.Dev.BlogGenerator.Admin/js/toastui-editor-all.min.js"></script>
+    <script src="_content/TimPurdum.Dev.BlogGenerator.Admin/js/admin-interop.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
 </html>
