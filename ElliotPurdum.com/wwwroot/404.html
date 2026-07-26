@@ -10,11 +10,15 @@
         // We stash the requested path in sessionStorage and bounce to /admin/, where index.html
         // restores the URL via history.replaceState before Blazor's router runs.
         (function () {
+            var MOUNT = "/admin/";
             var path = window.location.pathname || "/";
-            if (path.indexOf("/admin/") === 0 || path === "/admin") {
+            // Reaching here at exactly the mount point means the admin isn't deployed — its
+            // index.html would have been served instead — so bouncing would redirect to itself
+            // forever. Fall through to the public 404 in that case.
+            if (path !== MOUNT && (path.indexOf(MOUNT) === 0 || path === "/admin")) {
                 try { sessionStorage.setItem("admin.spa.redirect", path + window.location.search + window.location.hash); }
                 catch (e) { /* private mode: fall through to /admin/ which still loads the dashboard */ }
-                window.location.replace("/admin/");
+                window.location.replace(MOUNT);
                 return;
             }
             // Mark the page as the public 404 so the body content renders.

@@ -7,9 +7,17 @@
     <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <title>Admin — Elliot Purdum</title>
-    <base href="/" />
+    <!-- Must match the subfolder static.yml stages this app into. Every asset URL below is
+         relative to it. With "/" here, a page served from /admin/ would resolve _framework/ to the
+         site root and boot the public site's Blazor app instead of the admin. -->
+    <base href="/admin/" />
     <link rel="stylesheet" href="_content/TimPurdum.Dev.BlogGenerator.Admin/css/toastui-editor.min.css" />
     <link rel="stylesheet" href="_content/TimPurdum.Dev.BlogGenerator.Admin/css/admin.css" />
+    <!-- The library stylesheet names these families in --font-serif / --font-sans / --font-mono;
+         without them the admin silently falls back to Georgia / system-ui / Consolas. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Source+Sans+3:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
