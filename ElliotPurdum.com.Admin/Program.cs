@@ -15,8 +15,10 @@ builder.Services.AddBlogAdmin(opts =>
     opts.Repo = new GitHubRepoConfig(Owner: "TimPurdum", Repo: "elliotpurdum.github.io");
     opts.PatStorageKey = "elliotpurdum.admin.pat";
     opts.SiteName = "Elliot Purdum";
-    opts.ImagesRoot = "ElliotPurdum.com.Source/wwwroot";
-    opts.ImageFolders = ["images/music", "images/gallery", "images"];
+    // Images live in the *app* project's wwwroot, not the Source RCL's — Source has no wwwroot at all,
+    // so pointing here at ElliotPurdum.com.Source made every folder list as empty (GitHub 404 → no rows).
+    opts.ImagesRoot = "ElliotPurdum.com/wwwroot";
+    opts.ImageFolders = ["images/gallery", "images/music", "images/hero", "images/headshot", "images"];
     opts.PublicImageUrlPrefix = "";
 
     opts.ConfigurePost(p =>
